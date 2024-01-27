@@ -1,0 +1,4468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Venom Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/yamljs/0.3.0/yaml.min.js"></script>
+    <style>
+      
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+    
+    .bi {
+      vertical-align: -.125em;
+      fill: currentColor;
+    }
+    .nav-scroller {
+      position: relative;
+      z-index: 2;
+      height: 2.75rem;
+      overflow-y: hidden;
+    }
+    .nav-scroller .nav {
+      display: flex;
+      flex-wrap: nowrap;
+      padding-bottom: 1rem;
+      margin-top: -1px;
+      overflow-x: auto;
+      text-align: center;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    body {
+      font-size: .875rem;
+    }
+    
+    .feather {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 0;
+      /* rtl:raw:
+      right: 0;
+      */
+      bottom: 0;
+      /* rtl:remove */
+      left: 0;
+      z-index: 100; /* Behind the navbar */
+      padding: 48px 0 0; /* Height of navbar */
+    }
+    
+    @media (max-width: 767.98px) {
+      .sidebar {
+        top: 5rem;
+      }
+    }
+    
+    .b-divider {
+      height: 3rem;
+      background-color: rgba(0, 0, 0, .1);
+      border: solid rgba(0, 0, 0, .15);
+      border-width: 1px 0;
+      box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+    }
+
+    .b-vr {
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 100vh;
+    }
+
+    .sidebar-sticky {
+      height: calc(100vh - 48px);
+      overflow-x: hidden;
+      overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    }
+    
+    .start-97 {
+      left: 5%!important;
+    }
+
+    .nt {
+      color: rgb(33,37,41);
+    }
+    
+    .navbar-brand {
+      padding-top: .75rem;
+      padding-bottom: .75rem;
+    }
+    
+    .float-right {
+      float: right!important;
+    }
+
+    .testsuites li {
+      cursor:pointer;
+    }
+  </style>
+  </head>
+<body>
+    
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">🐍 Venom</a>
+  <div class="navbar-nav">
+  </div>
+</header>
+<div class="container-fluid">
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-withe sidebar">
+      <div class="position-sticky pt-3 sidebar-sticky">
+        <div class="align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom" id="title-nav-testsuites">
+        </div>
+        <ul class="list-group list-group-flush border-bottom scrollarea testsuites" id="testsuites">
+        </ul>
+      </div>
+    </nav>
+
+    <main class="d-flex flex-nowrap col-md-9 ms-sm-auto col-lg-10 px-md-0">
+      <div class="b-divider b-vr"></div>
+      <div class="p-3 col-md-11">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 id="testsuite" class="h2"></h1>
+          <div id="testsuite-badges"></div>
+        </div>
+        <div id="testsuite_infos"></div>
+
+        <div id="testcases">        
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="varsModal" tabindex="-1" aria-labelledby="varsModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="varsModalLabel">Test Suite Variables</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="testsuite-vars">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  (() => {
+    'use strict'
+    $(document).ready( function () {
+      var a = {
+ "test_suites": [
+  {
+   "name": "test plate ingredient",
+   "testcases": [
+    {
+     "name": "create-plate-ingredient",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "create-plate-ingredient",
+      "venom.testsuite": "test plate ingredient",
+      "venom.testsuite.filename": "plate_ingredient.yml",
+      "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+      "venom.testsuite.name": "test plate ingredient",
+      "venom.testsuite.shortName": "plate_ingredient",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "bodyFile": "models/plate_ingredient.json",
+       "path": "plate/1/ingredient",
+       "type": "create"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.203091796,
+     "start": "2024-01-27T02:49:36.214143891+01:00",
+     "end": "2024-01-27T02:49:36.417235687+01:00",
+     "results": [
+      {
+       "name": "create",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "Ym9keUZpbGU6IG1vZGVscy9wbGF0ZV9pbmdyZWRpZW50Lmpzb24KcGF0aDogcGxhdGUvMS9pbmdyZWRpZW50CnR5cGU6IGNyZWF0ZQo=",
+       "interpolated": "Ym9keUZpbGU6IG1vZGVscy9wbGF0ZV9pbmdyZWRpZW50Lmpzb24KcGF0aDogcGxhdGUvMS9pbmdyZWRpZW50CnR5cGU6IGNyZWF0ZQo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "create-plate-ingredient",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate ingredient",
+        "venom.testsuite.filename": "plate_ingredient.yml",
+        "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+        "venom.testsuite.name": "test plate ingredient",
+        "venom.testsuite.shortName": "plate_ingredient",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 6,
+        "__type__": "Map",
+        "result": {
+         "body": ""
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.body": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.199302409,
+       "start": "2024-01-27T02:49:36.217822398+01:00",
+       "end": "2024-01-27T02:49:36.417124707+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-plate-ingredient-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate-ingredient.__len__": 6,
+      "create-plate-ingredient.__type__": "Map",
+      "create-plate-ingredient.result": {
+       "body": ""
+      },
+      "create-plate-ingredient.result.__len__": 1,
+      "create-plate-ingredient.result.__type__": "Map",
+      "create-plate-ingredient.result.body": "",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-plate-ingredient-admin",
+      "venom.testsuite": "test plate ingredient",
+      "venom.testsuite.filename": "plate_ingredient.yml",
+      "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+      "venom.testsuite.name": "test plate ingredient",
+      "venom.testsuite.shortName": "plate_ingredient",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "path": "plate/1/ingredient",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.14282883,
+     "start": "2024-01-27T02:49:36.417261235+01:00",
+     "end": "2024-01-27T02:49:36.560090066+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBwbGF0ZS8xL2luZ3JlZGllbnQKdHlwZTogcmVhZAo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBwbGF0ZS8xL2luZ3JlZGllbnQKdHlwZTogcmVhZAo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "24",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate-ingredient.__len__": "6",
+        "create-plate-ingredient.__type__": "Map",
+        "create-plate-ingredient.result": "{\\\"body\\\":\\\"\\\"}",
+        "create-plate-ingredient.result.__Len__": "1",
+        "create-plate-ingredient.result.__Type__": "Map",
+        "create-plate-ingredient.result.__len__": "1",
+        "create-plate-ingredient.result.__type__": "Map",
+        "create-plate-ingredient.result.body": "",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-plate-ingredient-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate ingredient",
+        "venom.testsuite.filename": "plate_ingredient.yml",
+        "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+        "venom.testsuite.name": "test plate ingredient",
+        "venom.testsuite.shortName": "plate_ingredient",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.138215932,
+       "start": "2024-01-27T02:49:36.42180335+01:00",
+       "end": "2024-01-27T02:49:36.560019292+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-plate-ingredient-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate-ingredient.__len__": 6,
+      "create-plate-ingredient.__type__": "Map",
+      "create-plate-ingredient.result": {
+       "body": ""
+      },
+      "create-plate-ingredient.result.__len__": 1,
+      "create-plate-ingredient.result.__type__": "Map",
+      "create-plate-ingredient.result.body": "",
+      "employee_url": "http://localhost:8082/employee",
+      "read-plate-ingredient-admin.__len__": 3,
+      "read-plate-ingredient-admin.__type__": "Map",
+      "read-plate-ingredient-admin.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-plate-ingredient-client",
+      "venom.testsuite": "test plate ingredient",
+      "venom.testsuite.filename": "plate_ingredient.yml",
+      "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+      "venom.testsuite.name": "test plate ingredient",
+      "venom.testsuite.shortName": "plate_ingredient",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/client",
+       "path": "plate/1/ingredient",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.145161235,
+     "start": "2024-01-27T02:49:36.560113821+01:00",
+     "end": "2024-01-27T02:49:36.705275056+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogcGxhdGUvMS9pbmdyZWRpZW50CnR5cGU6IHJlYWQK",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogcGxhdGUvMS9pbmdyZWRpZW50CnR5cGU6IHJlYWQK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "27",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate-ingredient.__len__": "6",
+        "create-plate-ingredient.__type__": "Map",
+        "create-plate-ingredient.result": "{\\\"body\\\":\\\"\\\"}",
+        "create-plate-ingredient.result.__Len__": "1",
+        "create-plate-ingredient.result.__Type__": "Map",
+        "create-plate-ingredient.result.__len__": "1",
+        "create-plate-ingredient.result.__type__": "Map",
+        "create-plate-ingredient.result.body": "",
+        "employee_url": "http://localhost:8082/employee",
+        "read-plate-ingredient-admin.__len__": "3",
+        "read-plate-ingredient-admin.__type__": "Map",
+        "read-plate-ingredient-admin.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-plate-ingredient-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate ingredient",
+        "venom.testsuite.filename": "plate_ingredient.yml",
+        "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+        "venom.testsuite.name": "test plate ingredient",
+        "venom.testsuite.shortName": "plate_ingredient",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.140652593,
+       "start": "2024-01-27T02:49:36.564536279+01:00",
+       "end": "2024-01-27T02:49:36.705188872+01:00"
+      }
+     ]
+    },
+    {
+     "name": "delete-plate-ingredient",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate-ingredient.__len__": 6,
+      "create-plate-ingredient.__type__": "Map",
+      "create-plate-ingredient.result": {
+       "body": ""
+      },
+      "create-plate-ingredient.result.__len__": 1,
+      "create-plate-ingredient.result.__type__": "Map",
+      "create-plate-ingredient.result.body": "",
+      "employee_url": "http://localhost:8082/employee",
+      "read-plate-ingredient-admin.__len__": 3,
+      "read-plate-ingredient-admin.__type__": "Map",
+      "read-plate-ingredient-admin.result": "",
+      "read-plate-ingredient-client.__len__": 3,
+      "read-plate-ingredient-client.__type__": "Map",
+      "read-plate-ingredient-client.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "delete-plate-ingredient",
+      "venom.testsuite": "test plate ingredient",
+      "venom.testsuite.filename": "plate_ingredient.yml",
+      "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+      "venom.testsuite.name": "test plate ingredient",
+      "venom.testsuite.shortName": "plate_ingredient",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "path": "plate/1/ingredient/1",
+       "type": "delete"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.141239867,
+     "start": "2024-01-27T02:49:36.705293982+01:00",
+     "end": "2024-01-27T02:49:36.846533849+01:00",
+     "results": [
+      {
+       "name": "delete",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "cGF0aDogcGxhdGUvMS9pbmdyZWRpZW50LzEKdHlwZTogZGVsZXRlCg==",
+       "interpolated": "cGF0aDogcGxhdGUvMS9pbmdyZWRpZW50LzEKdHlwZTogZGVsZXRlCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "30",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate-ingredient.__len__": "6",
+        "create-plate-ingredient.__type__": "Map",
+        "create-plate-ingredient.result": "{\\\"body\\\":\\\"\\\"}",
+        "create-plate-ingredient.result.__Len__": "1",
+        "create-plate-ingredient.result.__Type__": "Map",
+        "create-plate-ingredient.result.__len__": "1",
+        "create-plate-ingredient.result.__type__": "Map",
+        "create-plate-ingredient.result.body": "",
+        "employee_url": "http://localhost:8082/employee",
+        "read-plate-ingredient-admin.__len__": "3",
+        "read-plate-ingredient-admin.__type__": "Map",
+        "read-plate-ingredient-admin.result": "",
+        "read-plate-ingredient-client.__len__": "3",
+        "read-plate-ingredient-client.__type__": "Map",
+        "read-plate-ingredient-client.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "delete-plate-ingredient",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate ingredient",
+        "venom.testsuite.filename": "plate_ingredient.yml",
+        "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+        "venom.testsuite.name": "test plate ingredient",
+        "venom.testsuite.shortName": "plate_ingredient",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.13724504,
+       "start": "2024-01-27T02:49:36.709158852+01:00",
+       "end": "2024-01-27T02:49:36.846403892+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test plate ingredient",
+    "venom.testsuite.filename": "plate_ingredient.yml",
+    "venom.testsuite.filepath": "suites/plate_ingredient.yml",
+    "venom.testsuite.name": "test plate ingredient",
+    "venom.testsuite.shortName": "plate_ingredient",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "plate_ingredient",
+   "filename": "plate_ingredient.yml",
+   "filepath": "suites/plate_ingredient.yml",
+   "computed_vars": {
+    "create-plate-ingredient.__len__": 6,
+    "create-plate-ingredient.__type__": "Map",
+    "create-plate-ingredient.result": {
+     "body": ""
+    },
+    "create-plate-ingredient.result.__len__": 1,
+    "create-plate-ingredient.result.__type__": "Map",
+    "create-plate-ingredient.result.body": "",
+    "delete-plate-ingredient.__len__": 3,
+    "delete-plate-ingredient.__type__": "Map",
+    "delete-plate-ingredient.result": "",
+    "read-plate-ingredient-admin.__len__": 3,
+    "read-plate-ingredient-admin.__type__": "Map",
+    "read-plate-ingredient-admin.result": "",
+    "read-plate-ingredient-client.__len__": 3,
+    "read-plate-ingredient-client.__type__": "Map",
+    "read-plate-ingredient-client.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.632525545,
+   "start": "2024-01-27T02:49:36.214052357+01:00",
+   "end": "2024-01-27T02:49:36.846577902+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 4,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test allergen",
+   "testcases": [
+    {
+     "name": "read-allergen-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-allergen-admin",
+      "venom.testsuite": "test allergen",
+      "venom.testsuite.filename": "allergen.yml",
+      "venom.testsuite.filepath": "suites/allergen.yml",
+      "venom.testsuite.name": "test allergen",
+      "venom.testsuite.shortName": "allergen",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "path": "allergen",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.129408288,
+     "start": "2024-01-27T02:49:36.846715573+01:00",
+     "end": "2024-01-27T02:49:36.97612384+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBhbGxlcmdlbgp0eXBlOiByZWFkCg==",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBhbGxlcmdlbgp0eXBlOiByZWFkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-allergen-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test allergen",
+        "venom.testsuite.filename": "allergen.yml",
+        "venom.testsuite.filepath": "suites/allergen.yml",
+        "venom.testsuite.name": "test allergen",
+        "venom.testsuite.shortName": "allergen",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.125447705,
+       "start": "2024-01-27T02:49:36.850542582+01:00",
+       "end": "2024-01-27T02:49:36.975990277+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-allergen-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "read-allergen-admin.__len__": 3,
+      "read-allergen-admin.__type__": "Map",
+      "read-allergen-admin.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-allergen-client",
+      "venom.testsuite": "test allergen",
+      "venom.testsuite.filename": "allergen.yml",
+      "venom.testsuite.filepath": "suites/allergen.yml",
+      "venom.testsuite.name": "test allergen",
+      "venom.testsuite.shortName": "allergen",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/client",
+       "path": "allergen",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.130263519,
+     "start": "2024-01-27T02:49:36.976154569+01:00",
+     "end": "2024-01-27T02:49:37.106418108+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogYWxsZXJnZW4KdHlwZTogcmVhZAo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogYWxsZXJnZW4KdHlwZTogcmVhZAo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "21",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "read-allergen-admin.__len__": "3",
+        "read-allergen-admin.__type__": "Map",
+        "read-allergen-admin.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-allergen-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test allergen",
+        "venom.testsuite.filename": "allergen.yml",
+        "venom.testsuite.filepath": "suites/allergen.yml",
+        "venom.testsuite.name": "test allergen",
+        "venom.testsuite.shortName": "allergen",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.124632319,
+       "start": "2024-01-27T02:49:36.981708643+01:00",
+       "end": "2024-01-27T02:49:37.106340952+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test allergen",
+    "venom.testsuite.filename": "allergen.yml",
+    "venom.testsuite.filepath": "suites/allergen.yml",
+    "venom.testsuite.name": "test allergen",
+    "venom.testsuite.shortName": "allergen",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "allergen",
+   "filename": "allergen.yml",
+   "filepath": "suites/allergen.yml",
+   "computed_vars": {
+    "read-allergen-admin.__len__": 3,
+    "read-allergen-admin.__type__": "Map",
+    "read-allergen-admin.result": "",
+    "read-allergen-client.__len__": 3,
+    "read-allergen-client.__type__": "Map",
+    "read-allergen-client.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.259866917,
+   "start": "2024-01-27T02:49:36.846578523+01:00",
+   "end": "2024-01-27T02:49:37.10644544+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 2,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test ingredient",
+   "testcases": [
+    {
+     "name": "read-ingredient-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-ingredient-admin",
+      "venom.testsuite": "test ingredient",
+      "venom.testsuite.filename": "ingredient.yml",
+      "venom.testsuite.filepath": "suites/ingredient.yml",
+      "venom.testsuite.name": "test ingredient",
+      "venom.testsuite.shortName": "ingredient",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "path": "ingredient",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.136119516,
+     "start": "2024-01-27T02:49:37.106535781+01:00",
+     "end": "2024-01-27T02:49:37.242655297+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBpbmdyZWRpZW50CnR5cGU6IHJlYWQK",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBpbmdyZWRpZW50CnR5cGU6IHJlYWQK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-ingredient-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test ingredient",
+        "venom.testsuite.filename": "ingredient.yml",
+        "venom.testsuite.filepath": "suites/ingredient.yml",
+        "venom.testsuite.name": "test ingredient",
+        "venom.testsuite.shortName": "ingredient",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.132634215,
+       "start": "2024-01-27T02:49:37.10994128+01:00",
+       "end": "2024-01-27T02:49:37.242575485+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-ingredient-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "read-ingredient-admin.__len__": 3,
+      "read-ingredient-admin.__type__": "Map",
+      "read-ingredient-admin.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-ingredient-client",
+      "venom.testsuite": "test ingredient",
+      "venom.testsuite.filename": "ingredient.yml",
+      "venom.testsuite.filepath": "suites/ingredient.yml",
+      "venom.testsuite.name": "test ingredient",
+      "venom.testsuite.shortName": "ingredient",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/client",
+       "path": "ingredient",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.116663295,
+     "start": "2024-01-27T02:49:37.242671628+01:00",
+     "end": "2024-01-27T02:49:37.359334922+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogaW5ncmVkaWVudAp0eXBlOiByZWFkCg==",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogaW5ncmVkaWVudAp0eXBlOiByZWFkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "21",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "read-ingredient-admin.__len__": "3",
+        "read-ingredient-admin.__type__": "Map",
+        "read-ingredient-admin.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-ingredient-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test ingredient",
+        "venom.testsuite.filename": "ingredient.yml",
+        "venom.testsuite.filepath": "suites/ingredient.yml",
+        "venom.testsuite.name": "test ingredient",
+        "venom.testsuite.shortName": "ingredient",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.113064649,
+       "start": "2024-01-27T02:49:37.246160585+01:00",
+       "end": "2024-01-27T02:49:37.359225234+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test ingredient",
+    "venom.testsuite.filename": "ingredient.yml",
+    "venom.testsuite.filepath": "suites/ingredient.yml",
+    "venom.testsuite.name": "test ingredient",
+    "venom.testsuite.shortName": "ingredient",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "ingredient",
+   "filename": "ingredient.yml",
+   "filepath": "suites/ingredient.yml",
+   "computed_vars": {
+    "read-ingredient-admin.__len__": 3,
+    "read-ingredient-admin.__type__": "Map",
+    "read-ingredient-admin.result": "",
+    "read-ingredient-client.__len__": 3,
+    "read-ingredient-client.__type__": "Map",
+    "read-ingredient-client.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.252913418,
+   "start": "2024-01-27T02:49:37.10644585+01:00",
+   "end": "2024-01-27T02:49:37.359359269+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 2,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test category",
+   "testcases": [
+    {
+     "name": "create-category",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "create-category",
+      "venom.testsuite": "test category",
+      "venom.testsuite.filename": "category.yml",
+      "venom.testsuite.filepath": "suites/category.yml",
+      "venom.testsuite.name": "test category",
+      "venom.testsuite.shortName": "category",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "assertions": [
+        "result.bodyjson ShouldContainKey id"
+       ],
+       "bodyFile": "models/category.json",
+       "path": "category",
+       "type": "create",
+       "vars": {
+        "id": {
+         "from": "result.bodyjson.id"
+        }
+       }
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.135333264,
+     "start": "2024-01-27T02:49:37.359445512+01:00",
+     "end": "2024-01-27T02:49:37.494778766+01:00",
+     "results": [
+      {
+       "name": "create",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgaWQKYm9keUZpbGU6IG1vZGVscy9jYXRlZ29yeS5qc29uCnBhdGg6IGNhdGVnb3J5CnR5cGU6IGNyZWF0ZQp2YXJzOgogICAgaWQ6CiAgICAgICAgZnJvbTogcmVzdWx0LmJvZHlqc29uLmlkCg==",
+       "interpolated": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgaWQKYm9keUZpbGU6IG1vZGVscy9jYXRlZ29yeS5qc29uCnBhdGg6IGNhdGVnb3J5CnR5cGU6IGNyZWF0ZQp2YXJzOgogICAgaWQ6CiAgICAgICAgZnJvbTogcmVzdWx0LmJvZHlqc29uLmlkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "create-category",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test category",
+        "venom.testsuite.filename": "category.yml",
+        "venom.testsuite.filepath": "suites/category.yml",
+        "venom.testsuite.name": "test category",
+        "venom.testsuite.shortName": "category",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 8,
+        "__type__": "Map",
+        "result": {
+         "body": "{\"id\":2}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.body": "{\"id\":2}",
+        "result.bodyjson": {
+         "id": 2
+        },
+        "result.bodyjson.__len__": 1,
+        "result.bodyjson.__type__": "Map",
+        "result.bodyjson.id": 2
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": [
+         {
+          "assertion": "result.bodyjson ShouldContainKey id",
+          "isOK": true
+         }
+        ]
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.129638744,
+       "start": "2024-01-27T02:49:37.36488029+01:00",
+       "end": "2024-01-27T02:49:37.494519004+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-category-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-category.__len__": 8,
+      "create-category.__type__": "Map",
+      "create-category.id": 2,
+      "create-category.result": {
+       "body": "{\"id\":2}"
+      },
+      "create-category.result.__len__": 1,
+      "create-category.result.__type__": "Map",
+      "create-category.result.body": "{\"id\":2}",
+      "create-category.result.bodyjson": {
+       "id": 2
+      },
+      "create-category.result.bodyjson.__len__": 1,
+      "create-category.result.bodyjson.__type__": "Map",
+      "create-category.result.bodyjson.id": 2,
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-category-admin",
+      "venom.testsuite": "test category",
+      "venom.testsuite.filename": "category.yml",
+      "venom.testsuite.filepath": "suites/category.yml",
+      "venom.testsuite.name": "test category",
+      "venom.testsuite.shortName": "category",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "path": "category",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.114671197,
+     "start": "2024-01-27T02:49:37.494803814+01:00",
+     "end": "2024-01-27T02:49:37.609474981+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBjYXRlZ29yeQp0eXBlOiByZWFkCg==",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBjYXRlZ29yeQp0eXBlOiByZWFkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "29",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-category.__len__": "8",
+        "create-category.__type__": "Map",
+        "create-category.id": "2",
+        "create-category.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":2}\\\"}",
+        "create-category.result.__Len__": "1",
+        "create-category.result.__Type__": "Map",
+        "create-category.result.__len__": "1",
+        "create-category.result.__type__": "Map",
+        "create-category.result.body": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson.__Len__": "1",
+        "create-category.result.bodyjson.__Type__": "Map",
+        "create-category.result.bodyjson.__len__": "1",
+        "create-category.result.bodyjson.__type__": "Map",
+        "create-category.result.bodyjson.id": "2",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-category-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test category",
+        "venom.testsuite.filename": "category.yml",
+        "venom.testsuite.filepath": "suites/category.yml",
+        "venom.testsuite.name": "test category",
+        "venom.testsuite.shortName": "category",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.108629669,
+       "start": "2024-01-27T02:49:37.500732829+01:00",
+       "end": "2024-01-27T02:49:37.609362507+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-category-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-category.__len__": 8,
+      "create-category.__type__": "Map",
+      "create-category.id": 2,
+      "create-category.result": {
+       "body": "{\"id\":2}"
+      },
+      "create-category.result.__len__": 1,
+      "create-category.result.__type__": "Map",
+      "create-category.result.body": "{\"id\":2}",
+      "create-category.result.bodyjson": {
+       "id": 2
+      },
+      "create-category.result.bodyjson.__len__": 1,
+      "create-category.result.bodyjson.__type__": "Map",
+      "create-category.result.bodyjson.id": 2,
+      "employee_url": "http://localhost:8082/employee",
+      "read-category-admin.__len__": 3,
+      "read-category-admin.__type__": "Map",
+      "read-category-admin.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-category-client",
+      "venom.testsuite": "test category",
+      "venom.testsuite.filename": "category.yml",
+      "venom.testsuite.filepath": "suites/category.yml",
+      "venom.testsuite.name": "test category",
+      "venom.testsuite.shortName": "category",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/client",
+       "path": "category",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.13081755,
+     "start": "2024-01-27T02:49:37.609499006+01:00",
+     "end": "2024-01-27T02:49:37.740316576+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogY2F0ZWdvcnkKdHlwZTogcmVhZAo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogY2F0ZWdvcnkKdHlwZTogcmVhZAo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "32",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-category.__len__": "8",
+        "create-category.__type__": "Map",
+        "create-category.id": "2",
+        "create-category.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":2}\\\"}",
+        "create-category.result.__Len__": "1",
+        "create-category.result.__Type__": "Map",
+        "create-category.result.__len__": "1",
+        "create-category.result.__type__": "Map",
+        "create-category.result.body": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson.__Len__": "1",
+        "create-category.result.bodyjson.__Type__": "Map",
+        "create-category.result.bodyjson.__len__": "1",
+        "create-category.result.bodyjson.__type__": "Map",
+        "create-category.result.bodyjson.id": "2",
+        "employee_url": "http://localhost:8082/employee",
+        "read-category-admin.__len__": "3",
+        "read-category-admin.__type__": "Map",
+        "read-category-admin.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-category-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test category",
+        "venom.testsuite.filename": "category.yml",
+        "venom.testsuite.filepath": "suites/category.yml",
+        "venom.testsuite.name": "test category",
+        "venom.testsuite.shortName": "category",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.126128256,
+       "start": "2024-01-27T02:49:37.614118337+01:00",
+       "end": "2024-01-27T02:49:37.740246593+01:00"
+      }
+     ]
+    },
+    {
+     "name": "update-category",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-category.__len__": 8,
+      "create-category.__type__": "Map",
+      "create-category.id": 2,
+      "create-category.result": {
+       "body": "{\"id\":2}"
+      },
+      "create-category.result.__len__": 1,
+      "create-category.result.__type__": "Map",
+      "create-category.result.body": "{\"id\":2}",
+      "create-category.result.bodyjson": {
+       "id": 2
+      },
+      "create-category.result.bodyjson.__len__": 1,
+      "create-category.result.bodyjson.__type__": "Map",
+      "create-category.result.bodyjson.id": 2,
+      "employee_url": "http://localhost:8082/employee",
+      "read-category-admin.__len__": 3,
+      "read-category-admin.__type__": "Map",
+      "read-category-admin.result": "",
+      "read-category-client.__len__": 3,
+      "read-category-client.__type__": "Map",
+      "read-category-client.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "update-category",
+      "venom.testsuite": "test category",
+      "venom.testsuite.filename": "category.yml",
+      "venom.testsuite.filepath": "suites/category.yml",
+      "venom.testsuite.name": "test category",
+      "venom.testsuite.shortName": "category",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "bodyFile": "models/category.json",
+       "path": "category/{{.create-category.id}}",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.146411456,
+     "start": "2024-01-27T02:49:37.740332426+01:00",
+     "end": "2024-01-27T02:49:37.886743892+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "Ym9keUZpbGU6IG1vZGVscy9jYXRlZ29yeS5qc29uCnBhdGg6IGNhdGVnb3J5L3t7LmNyZWF0ZS1jYXRlZ29yeS5pZH19CnR5cGU6IHVwZGF0ZQo=",
+       "interpolated": "Ym9keUZpbGU6IG1vZGVscy9jYXRlZ29yeS5qc29uCnBhdGg6IGNhdGVnb3J5LzIKdHlwZTogdXBkYXRlCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "35",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-category.__len__": "8",
+        "create-category.__type__": "Map",
+        "create-category.id": "2",
+        "create-category.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":2}\\\"}",
+        "create-category.result.__Len__": "1",
+        "create-category.result.__Type__": "Map",
+        "create-category.result.__len__": "1",
+        "create-category.result.__type__": "Map",
+        "create-category.result.body": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson.__Len__": "1",
+        "create-category.result.bodyjson.__Type__": "Map",
+        "create-category.result.bodyjson.__len__": "1",
+        "create-category.result.bodyjson.__type__": "Map",
+        "create-category.result.bodyjson.id": "2",
+        "employee_url": "http://localhost:8082/employee",
+        "read-category-admin.__len__": "3",
+        "read-category-admin.__type__": "Map",
+        "read-category-admin.result": "",
+        "read-category-client.__len__": "3",
+        "read-category-client.__type__": "Map",
+        "read-category-client.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "update-category",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test category",
+        "venom.testsuite.filename": "category.yml",
+        "venom.testsuite.filepath": "suites/category.yml",
+        "venom.testsuite.name": "test category",
+        "venom.testsuite.shortName": "category",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.140612727,
+       "start": "2024-01-27T02:49:37.746061853+01:00",
+       "end": "2024-01-27T02:49:37.88667458+01:00"
+      }
+     ]
+    },
+    {
+     "name": "delete-category",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-category.__len__": 8,
+      "create-category.__type__": "Map",
+      "create-category.id": 2,
+      "create-category.result": {
+       "body": "{\"id\":2}"
+      },
+      "create-category.result.__len__": 1,
+      "create-category.result.__type__": "Map",
+      "create-category.result.body": "{\"id\":2}",
+      "create-category.result.bodyjson": {
+       "id": 2
+      },
+      "create-category.result.bodyjson.__len__": 1,
+      "create-category.result.bodyjson.__type__": "Map",
+      "create-category.result.bodyjson.id": 2,
+      "employee_url": "http://localhost:8082/employee",
+      "read-category-admin.__len__": 3,
+      "read-category-admin.__type__": "Map",
+      "read-category-admin.result": "",
+      "read-category-client.__len__": 3,
+      "read-category-client.__type__": "Map",
+      "read-category-client.result": "",
+      "update-category.__len__": 3,
+      "update-category.__type__": "Map",
+      "update-category.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "delete-category",
+      "venom.testsuite": "test category",
+      "venom.testsuite.filename": "category.yml",
+      "venom.testsuite.filepath": "suites/category.yml",
+      "venom.testsuite.name": "test category",
+      "venom.testsuite.shortName": "category",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "path": "category/{{.create-category.id}}",
+       "type": "delete"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.14163185,
+     "start": "2024-01-27T02:49:37.886759431+01:00",
+     "end": "2024-01-27T02:49:38.028391251+01:00",
+     "results": [
+      {
+       "name": "delete",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "cGF0aDogY2F0ZWdvcnkve3suY3JlYXRlLWNhdGVnb3J5LmlkfX0KdHlwZTogZGVsZXRlCg==",
+       "interpolated": "cGF0aDogY2F0ZWdvcnkvMgp0eXBlOiBkZWxldGUK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "38",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-category.__len__": "8",
+        "create-category.__type__": "Map",
+        "create-category.id": "2",
+        "create-category.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":2}\\\"}",
+        "create-category.result.__Len__": "1",
+        "create-category.result.__Type__": "Map",
+        "create-category.result.__len__": "1",
+        "create-category.result.__type__": "Map",
+        "create-category.result.body": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson": "{\\\"id\\\":2}",
+        "create-category.result.bodyjson.__Len__": "1",
+        "create-category.result.bodyjson.__Type__": "Map",
+        "create-category.result.bodyjson.__len__": "1",
+        "create-category.result.bodyjson.__type__": "Map",
+        "create-category.result.bodyjson.id": "2",
+        "employee_url": "http://localhost:8082/employee",
+        "read-category-admin.__len__": "3",
+        "read-category-admin.__type__": "Map",
+        "read-category-admin.result": "",
+        "read-category-client.__len__": "3",
+        "read-category-client.__type__": "Map",
+        "read-category-client.result": "",
+        "update-category.__len__": "3",
+        "update-category.__type__": "Map",
+        "update-category.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "delete-category",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test category",
+        "venom.testsuite.filename": "category.yml",
+        "venom.testsuite.filepath": "suites/category.yml",
+        "venom.testsuite.name": "test category",
+        "venom.testsuite.shortName": "category",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.1354627,
+       "start": "2024-01-27T02:49:37.892824995+01:00",
+       "end": "2024-01-27T02:49:38.028287685+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test category",
+    "venom.testsuite.filename": "category.yml",
+    "venom.testsuite.filepath": "suites/category.yml",
+    "venom.testsuite.name": "test category",
+    "venom.testsuite.shortName": "category",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "category",
+   "filename": "category.yml",
+   "filepath": "suites/category.yml",
+   "computed_vars": {
+    "create-category.__len__": 8,
+    "create-category.__type__": "Map",
+    "create-category.id": 2,
+    "create-category.result": {
+     "body": "{\"id\":2}"
+    },
+    "create-category.result.__len__": 1,
+    "create-category.result.__type__": "Map",
+    "create-category.result.body": "{\"id\":2}",
+    "create-category.result.bodyjson": {
+     "id": 2
+    },
+    "create-category.result.bodyjson.__len__": 1,
+    "create-category.result.bodyjson.__type__": "Map",
+    "create-category.result.bodyjson.id": 2,
+    "delete-category.__len__": 3,
+    "delete-category.__type__": "Map",
+    "delete-category.result": "",
+    "read-category-admin.__len__": 3,
+    "read-category-admin.__type__": "Map",
+    "read-category-admin.result": "",
+    "read-category-client.__len__": 3,
+    "read-category-client.__type__": "Map",
+    "read-category-client.result": "",
+    "update-category.__len__": 3,
+    "update-category.__type__": "Map",
+    "update-category.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.669068572,
+   "start": "2024-01-27T02:49:37.359359519+01:00",
+   "end": "2024-01-27T02:49:38.028428071+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 5,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test plate",
+   "testcases": [
+    {
+     "name": "create-plate",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "create-plate",
+      "venom.testsuite": "test plate",
+      "venom.testsuite.filename": "plate.yml",
+      "venom.testsuite.filepath": "suites/plate.yml",
+      "venom.testsuite.name": "test plate",
+      "venom.testsuite.shortName": "plate",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "assertions": [
+        "result.bodyjson ShouldContainKey id"
+       ],
+       "bodyFile": "models/plate.json",
+       "path": "plate",
+       "type": "create",
+       "vars": {
+        "id": {
+         "from": "result.bodyjson.id"
+        }
+       }
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.135285163,
+     "start": "2024-01-27T02:49:38.028579548+01:00",
+     "end": "2024-01-27T02:49:38.163864712+01:00",
+     "results": [
+      {
+       "name": "create",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgaWQKYm9keUZpbGU6IG1vZGVscy9wbGF0ZS5qc29uCnBhdGg6IHBsYXRlCnR5cGU6IGNyZWF0ZQp2YXJzOgogICAgaWQ6CiAgICAgICAgZnJvbTogcmVzdWx0LmJvZHlqc29uLmlkCg==",
+       "interpolated": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgaWQKYm9keUZpbGU6IG1vZGVscy9wbGF0ZS5qc29uCnBhdGg6IHBsYXRlCnR5cGU6IGNyZWF0ZQp2YXJzOgogICAgaWQ6CiAgICAgICAgZnJvbTogcmVzdWx0LmJvZHlqc29uLmlkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "create-plate",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate",
+        "venom.testsuite.filename": "plate.yml",
+        "venom.testsuite.filepath": "suites/plate.yml",
+        "venom.testsuite.name": "test plate",
+        "venom.testsuite.shortName": "plate",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 8,
+        "__type__": "Map",
+        "result": {
+         "body": "{\"id\":3}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.body": "{\"id\":3}",
+        "result.bodyjson": {
+         "id": 3
+        },
+        "result.bodyjson.__len__": 1,
+        "result.bodyjson.__type__": "Map",
+        "result.bodyjson.id": 3
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": [
+         {
+          "assertion": "result.bodyjson ShouldContainKey id",
+          "isOK": true
+         }
+        ]
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.129754824,
+       "start": "2024-01-27T02:49:38.033904849+01:00",
+       "end": "2024-01-27T02:49:38.163659653+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-plate-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate.__len__": 8,
+      "create-plate.__type__": "Map",
+      "create-plate.id": 3,
+      "create-plate.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-plate.result.__len__": 1,
+      "create-plate.result.__type__": "Map",
+      "create-plate.result.body": "{\"id\":3}",
+      "create-plate.result.bodyjson": {
+       "id": 3
+      },
+      "create-plate.result.bodyjson.__len__": 1,
+      "create-plate.result.bodyjson.__type__": "Map",
+      "create-plate.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-plate-admin",
+      "venom.testsuite": "test plate",
+      "venom.testsuite.filename": "plate.yml",
+      "venom.testsuite.filepath": "suites/plate.yml",
+      "venom.testsuite.name": "test plate",
+      "venom.testsuite.shortName": "plate",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "path": "plate",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.1187961,
+     "start": "2024-01-27T02:49:38.163915668+01:00",
+     "end": "2024-01-27T02:49:38.282711788+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBwbGF0ZQp0eXBlOiByZWFkCg==",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBwbGF0ZQp0eXBlOiByZWFkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "29",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate.__len__": "8",
+        "create-plate.__type__": "Map",
+        "create-plate.id": "3",
+        "create-plate.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-plate.result.__Len__": "1",
+        "create-plate.result.__Type__": "Map",
+        "create-plate.result.__len__": "1",
+        "create-plate.result.__type__": "Map",
+        "create-plate.result.body": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson.__Len__": "1",
+        "create-plate.result.bodyjson.__Type__": "Map",
+        "create-plate.result.bodyjson.__len__": "1",
+        "create-plate.result.bodyjson.__type__": "Map",
+        "create-plate.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-plate-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate",
+        "venom.testsuite.filename": "plate.yml",
+        "venom.testsuite.filepath": "suites/plate.yml",
+        "venom.testsuite.name": "test plate",
+        "venom.testsuite.shortName": "plate",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.114859333,
+       "start": "2024-01-27T02:49:38.16778127+01:00",
+       "end": "2024-01-27T02:49:38.282640593+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-plate-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate.__len__": 8,
+      "create-plate.__type__": "Map",
+      "create-plate.id": 3,
+      "create-plate.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-plate.result.__len__": 1,
+      "create-plate.result.__type__": "Map",
+      "create-plate.result.body": "{\"id\":3}",
+      "create-plate.result.bodyjson": {
+       "id": 3
+      },
+      "create-plate.result.bodyjson.__len__": 1,
+      "create-plate.result.bodyjson.__type__": "Map",
+      "create-plate.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "read-plate-admin.__len__": 3,
+      "read-plate-admin.__type__": "Map",
+      "read-plate-admin.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-plate-client",
+      "venom.testsuite": "test plate",
+      "venom.testsuite.filename": "plate.yml",
+      "venom.testsuite.filepath": "suites/plate.yml",
+      "venom.testsuite.name": "test plate",
+      "venom.testsuite.shortName": "plate",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/client",
+       "path": "plate",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.110704123,
+     "start": "2024-01-27T02:49:38.282730243+01:00",
+     "end": "2024-01-27T02:49:38.393434376+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogcGxhdGUKdHlwZTogcmVhZAo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogcGxhdGUKdHlwZTogcmVhZAo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "32",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate.__len__": "8",
+        "create-plate.__type__": "Map",
+        "create-plate.id": "3",
+        "create-plate.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-plate.result.__Len__": "1",
+        "create-plate.result.__Type__": "Map",
+        "create-plate.result.__len__": "1",
+        "create-plate.result.__type__": "Map",
+        "create-plate.result.body": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson.__Len__": "1",
+        "create-plate.result.bodyjson.__Type__": "Map",
+        "create-plate.result.bodyjson.__len__": "1",
+        "create-plate.result.bodyjson.__type__": "Map",
+        "create-plate.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "read-plate-admin.__len__": "3",
+        "read-plate-admin.__type__": "Map",
+        "read-plate-admin.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-plate-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate",
+        "venom.testsuite.filename": "plate.yml",
+        "venom.testsuite.filepath": "suites/plate.yml",
+        "venom.testsuite.name": "test plate",
+        "venom.testsuite.shortName": "plate",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.105268935,
+       "start": "2024-01-27T02:49:38.288097823+01:00",
+       "end": "2024-01-27T02:49:38.393366757+01:00"
+      }
+     ]
+    },
+    {
+     "name": "update-plate",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate.__len__": 8,
+      "create-plate.__type__": "Map",
+      "create-plate.id": 3,
+      "create-plate.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-plate.result.__len__": 1,
+      "create-plate.result.__type__": "Map",
+      "create-plate.result.body": "{\"id\":3}",
+      "create-plate.result.bodyjson": {
+       "id": 3
+      },
+      "create-plate.result.bodyjson.__len__": 1,
+      "create-plate.result.bodyjson.__type__": "Map",
+      "create-plate.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "read-plate-admin.__len__": 3,
+      "read-plate-admin.__type__": "Map",
+      "read-plate-admin.result": "",
+      "read-plate-client.__len__": 3,
+      "read-plate-client.__type__": "Map",
+      "read-plate-client.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "update-plate",
+      "venom.testsuite": "test plate",
+      "venom.testsuite.filename": "plate.yml",
+      "venom.testsuite.filepath": "suites/plate.yml",
+      "venom.testsuite.name": "test plate",
+      "venom.testsuite.shortName": "plate",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "bodyFile": "models/plate.json",
+       "path": "plate/{{.create-plate.id}}",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.117363733,
+     "start": "2024-01-27T02:49:38.393451057+01:00",
+     "end": "2024-01-27T02:49:38.51081478+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "Ym9keUZpbGU6IG1vZGVscy9wbGF0ZS5qc29uCnBhdGg6IHBsYXRlL3t7LmNyZWF0ZS1wbGF0ZS5pZH19CnR5cGU6IHVwZGF0ZQo=",
+       "interpolated": "Ym9keUZpbGU6IG1vZGVscy9wbGF0ZS5qc29uCnBhdGg6IHBsYXRlLzMKdHlwZTogdXBkYXRlCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "35",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate.__len__": "8",
+        "create-plate.__type__": "Map",
+        "create-plate.id": "3",
+        "create-plate.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-plate.result.__Len__": "1",
+        "create-plate.result.__Type__": "Map",
+        "create-plate.result.__len__": "1",
+        "create-plate.result.__type__": "Map",
+        "create-plate.result.body": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson.__Len__": "1",
+        "create-plate.result.bodyjson.__Type__": "Map",
+        "create-plate.result.bodyjson.__len__": "1",
+        "create-plate.result.bodyjson.__type__": "Map",
+        "create-plate.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "read-plate-admin.__len__": "3",
+        "read-plate-admin.__type__": "Map",
+        "read-plate-admin.result": "",
+        "read-plate-client.__len__": "3",
+        "read-plate-client.__type__": "Map",
+        "read-plate-client.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "update-plate",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate",
+        "venom.testsuite.filename": "plate.yml",
+        "venom.testsuite.filepath": "suites/plate.yml",
+        "venom.testsuite.name": "test plate",
+        "venom.testsuite.shortName": "plate",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.112835124,
+       "start": "2024-01-27T02:49:38.397909944+01:00",
+       "end": "2024-01-27T02:49:38.510745068+01:00"
+      }
+     ]
+    },
+    {
+     "name": "delete-plate",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-plate.__len__": 8,
+      "create-plate.__type__": "Map",
+      "create-plate.id": 3,
+      "create-plate.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-plate.result.__len__": 1,
+      "create-plate.result.__type__": "Map",
+      "create-plate.result.body": "{\"id\":3}",
+      "create-plate.result.bodyjson": {
+       "id": 3
+      },
+      "create-plate.result.bodyjson.__len__": 1,
+      "create-plate.result.bodyjson.__type__": "Map",
+      "create-plate.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "read-plate-admin.__len__": 3,
+      "read-plate-admin.__type__": "Map",
+      "read-plate-admin.result": "",
+      "read-plate-client.__len__": 3,
+      "read-plate-client.__type__": "Map",
+      "read-plate-client.result": "",
+      "update-plate.__len__": 3,
+      "update-plate.__type__": "Map",
+      "update-plate.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "delete-plate",
+      "venom.testsuite": "test plate",
+      "venom.testsuite.filename": "plate.yml",
+      "venom.testsuite.filepath": "suites/plate.yml",
+      "venom.testsuite.name": "test plate",
+      "venom.testsuite.shortName": "plate",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "path": "plate/{{.create-plate.id}}",
+       "type": "delete"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.126894359,
+     "start": "2024-01-27T02:49:38.51083038+01:00",
+     "end": "2024-01-27T02:49:38.637724729+01:00",
+     "results": [
+      {
+       "name": "delete",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "cGF0aDogcGxhdGUve3suY3JlYXRlLXBsYXRlLmlkfX0KdHlwZTogZGVsZXRlCg==",
+       "interpolated": "cGF0aDogcGxhdGUvMwp0eXBlOiBkZWxldGUK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "38",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-plate.__len__": "8",
+        "create-plate.__type__": "Map",
+        "create-plate.id": "3",
+        "create-plate.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-plate.result.__Len__": "1",
+        "create-plate.result.__Type__": "Map",
+        "create-plate.result.__len__": "1",
+        "create-plate.result.__type__": "Map",
+        "create-plate.result.body": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson": "{\\\"id\\\":3}",
+        "create-plate.result.bodyjson.__Len__": "1",
+        "create-plate.result.bodyjson.__Type__": "Map",
+        "create-plate.result.bodyjson.__len__": "1",
+        "create-plate.result.bodyjson.__type__": "Map",
+        "create-plate.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "read-plate-admin.__len__": "3",
+        "read-plate-admin.__type__": "Map",
+        "read-plate-admin.result": "",
+        "read-plate-client.__len__": "3",
+        "read-plate-client.__type__": "Map",
+        "read-plate-client.result": "",
+        "update-plate.__len__": "3",
+        "update-plate.__type__": "Map",
+        "update-plate.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "delete-plate",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test plate",
+        "venom.testsuite.filename": "plate.yml",
+        "venom.testsuite.filepath": "suites/plate.yml",
+        "venom.testsuite.name": "test plate",
+        "venom.testsuite.shortName": "plate",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.121001784,
+       "start": "2024-01-27T02:49:38.516636802+01:00",
+       "end": "2024-01-27T02:49:38.637638576+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test plate",
+    "venom.testsuite.filename": "plate.yml",
+    "venom.testsuite.filepath": "suites/plate.yml",
+    "venom.testsuite.name": "test plate",
+    "venom.testsuite.shortName": "plate",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "plate",
+   "filename": "plate.yml",
+   "filepath": "suites/plate.yml",
+   "computed_vars": {
+    "create-plate.__len__": 8,
+    "create-plate.__type__": "Map",
+    "create-plate.id": 3,
+    "create-plate.result": {
+     "body": "{\"id\":3}"
+    },
+    "create-plate.result.__len__": 1,
+    "create-plate.result.__type__": "Map",
+    "create-plate.result.body": "{\"id\":3}",
+    "create-plate.result.bodyjson": {
+     "id": 3
+    },
+    "create-plate.result.bodyjson.__len__": 1,
+    "create-plate.result.bodyjson.__type__": "Map",
+    "create-plate.result.bodyjson.id": 3,
+    "delete-plate.__len__": 3,
+    "delete-plate.__type__": "Map",
+    "delete-plate.result": "",
+    "read-plate-admin.__len__": 3,
+    "read-plate-admin.__type__": "Map",
+    "read-plate-admin.result": "",
+    "read-plate-client.__len__": 3,
+    "read-plate-client.__type__": "Map",
+    "read-plate-client.result": "",
+    "update-plate.__len__": 3,
+    "update-plate.__type__": "Map",
+    "update-plate.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.609325903,
+   "start": "2024-01-27T02:49:38.028428402+01:00",
+   "end": "2024-01-27T02:49:38.637754305+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 5,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test image",
+   "testcases": [
+    {
+     "name": "create-image",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "create-image",
+      "venom.testsuite": "test image",
+      "venom.testsuite.filename": "image.yml",
+      "venom.testsuite.filepath": "suites/image.yml",
+      "venom.testsuite.name": "test image",
+      "venom.testsuite.shortName": "image",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "assertions": [
+        "result.bodyjson ShouldContainKey id"
+       ],
+       "bodyFile": "models/image.json",
+       "path": "image",
+       "type": "create",
+       "vars": {
+        "id": {
+         "from": "result.bodyjson.id"
+        }
+       }
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.124396131,
+     "start": "2024-01-27T02:49:38.637851199+01:00",
+     "end": "2024-01-27T02:49:38.76224735+01:00",
+     "results": [
+      {
+       "name": "create",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgaWQKYm9keUZpbGU6IG1vZGVscy9pbWFnZS5qc29uCnBhdGg6IGltYWdlCnR5cGU6IGNyZWF0ZQp2YXJzOgogICAgaWQ6CiAgICAgICAgZnJvbTogcmVzdWx0LmJvZHlqc29uLmlkCg==",
+       "interpolated": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgaWQKYm9keUZpbGU6IG1vZGVscy9pbWFnZS5qc29uCnBhdGg6IGltYWdlCnR5cGU6IGNyZWF0ZQp2YXJzOgogICAgaWQ6CiAgICAgICAgZnJvbTogcmVzdWx0LmJvZHlqc29uLmlkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "create-image",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test image",
+        "venom.testsuite.filename": "image.yml",
+        "venom.testsuite.filepath": "suites/image.yml",
+        "venom.testsuite.name": "test image",
+        "venom.testsuite.shortName": "image",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 8,
+        "__type__": "Map",
+        "result": {
+         "body": "{\"id\":3}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.body": "{\"id\":3}",
+        "result.bodyjson": {
+         "id": 3
+        },
+        "result.bodyjson.__len__": 1,
+        "result.bodyjson.__type__": "Map",
+        "result.bodyjson.id": 3
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": [
+         {
+          "assertion": "result.bodyjson ShouldContainKey id",
+          "isOK": true
+         }
+        ]
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.120469474,
+       "start": "2024-01-27T02:49:38.641617442+01:00",
+       "end": "2024-01-27T02:49:38.762086926+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-image-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-image.__len__": 8,
+      "create-image.__type__": "Map",
+      "create-image.id": 3,
+      "create-image.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-image.result.__len__": 1,
+      "create-image.result.__type__": "Map",
+      "create-image.result.body": "{\"id\":3}",
+      "create-image.result.bodyjson": {
+       "id": 3
+      },
+      "create-image.result.bodyjson.__len__": 1,
+      "create-image.result.bodyjson.__type__": "Map",
+      "create-image.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-image-admin",
+      "venom.testsuite": "test image",
+      "venom.testsuite.filename": "image.yml",
+      "venom.testsuite.filepath": "suites/image.yml",
+      "venom.testsuite.name": "test image",
+      "venom.testsuite.shortName": "image",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "path": "image",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.102748083,
+     "start": "2024-01-27T02:49:38.762268099+01:00",
+     "end": "2024-01-27T02:49:38.865016182+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBpbWFnZQp0eXBlOiByZWFkCg==",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpwYXRoOiBpbWFnZQp0eXBlOiByZWFkCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "29",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-image.__len__": "8",
+        "create-image.__type__": "Map",
+        "create-image.id": "3",
+        "create-image.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-image.result.__Len__": "1",
+        "create-image.result.__Type__": "Map",
+        "create-image.result.__len__": "1",
+        "create-image.result.__type__": "Map",
+        "create-image.result.body": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson.__Len__": "1",
+        "create-image.result.bodyjson.__Type__": "Map",
+        "create-image.result.bodyjson.__len__": "1",
+        "create-image.result.bodyjson.__type__": "Map",
+        "create-image.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-image-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test image",
+        "venom.testsuite.filename": "image.yml",
+        "venom.testsuite.filepath": "suites/image.yml",
+        "venom.testsuite.name": "test image",
+        "venom.testsuite.shortName": "image",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.099056631,
+       "start": "2024-01-27T02:49:38.76589097+01:00",
+       "end": "2024-01-27T02:49:38.864947602+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-image-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-image.__len__": 8,
+      "create-image.__type__": "Map",
+      "create-image.id": 3,
+      "create-image.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-image.result.__len__": 1,
+      "create-image.result.__type__": "Map",
+      "create-image.result.body": "{\"id\":3}",
+      "create-image.result.bodyjson": {
+       "id": 3
+      },
+      "create-image.result.bodyjson.__len__": 1,
+      "create-image.result.bodyjson.__type__": "Map",
+      "create-image.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "read-image-admin.__len__": 3,
+      "read-image-admin.__type__": "Map",
+      "read-image-admin.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-image-client",
+      "venom.testsuite": "test image",
+      "venom.testsuite.filename": "image.yml",
+      "venom.testsuite.filepath": "suites/image.yml",
+      "venom.testsuite.name": "test image",
+      "venom.testsuite.shortName": "image",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/client",
+       "path": "image",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.122569006,
+     "start": "2024-01-27T02:49:38.865034667+01:00",
+     "end": "2024-01-27T02:49:38.987603673+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogaW1hZ2UKdHlwZTogcmVhZAo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKcGF0aDogaW1hZ2UKdHlwZTogcmVhZAo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "32",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-image.__len__": "8",
+        "create-image.__type__": "Map",
+        "create-image.id": "3",
+        "create-image.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-image.result.__Len__": "1",
+        "create-image.result.__Type__": "Map",
+        "create-image.result.__len__": "1",
+        "create-image.result.__type__": "Map",
+        "create-image.result.body": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson.__Len__": "1",
+        "create-image.result.bodyjson.__Type__": "Map",
+        "create-image.result.bodyjson.__len__": "1",
+        "create-image.result.bodyjson.__type__": "Map",
+        "create-image.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "read-image-admin.__len__": "3",
+        "read-image-admin.__type__": "Map",
+        "read-image-admin.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-image-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test image",
+        "venom.testsuite.filename": "image.yml",
+        "venom.testsuite.filepath": "suites/image.yml",
+        "venom.testsuite.name": "test image",
+        "venom.testsuite.shortName": "image",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.118662897,
+       "start": "2024-01-27T02:49:38.868876614+01:00",
+       "end": "2024-01-27T02:49:38.987539511+01:00"
+      }
+     ]
+    },
+    {
+     "name": "update-image",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-image.__len__": 8,
+      "create-image.__type__": "Map",
+      "create-image.id": 3,
+      "create-image.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-image.result.__len__": 1,
+      "create-image.result.__type__": "Map",
+      "create-image.result.body": "{\"id\":3}",
+      "create-image.result.bodyjson": {
+       "id": 3
+      },
+      "create-image.result.bodyjson.__len__": 1,
+      "create-image.result.bodyjson.__type__": "Map",
+      "create-image.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "read-image-admin.__len__": 3,
+      "read-image-admin.__type__": "Map",
+      "read-image-admin.result": "",
+      "read-image-client.__len__": 3,
+      "read-image-client.__type__": "Map",
+      "read-image-client.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "update-image",
+      "venom.testsuite": "test image",
+      "venom.testsuite.filename": "image.yml",
+      "venom.testsuite.filepath": "suites/image.yml",
+      "venom.testsuite.name": "test image",
+      "venom.testsuite.shortName": "image",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "bodyFile": "models/image.json",
+       "path": "image/{{.create-image.id}}",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.122669086,
+     "start": "2024-01-27T02:49:38.987621907+01:00",
+     "end": "2024-01-27T02:49:39.110290993+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "Ym9keUZpbGU6IG1vZGVscy9pbWFnZS5qc29uCnBhdGg6IGltYWdlL3t7LmNyZWF0ZS1pbWFnZS5pZH19CnR5cGU6IHVwZGF0ZQo=",
+       "interpolated": "Ym9keUZpbGU6IG1vZGVscy9pbWFnZS5qc29uCnBhdGg6IGltYWdlLzMKdHlwZTogdXBkYXRlCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "35",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-image.__len__": "8",
+        "create-image.__type__": "Map",
+        "create-image.id": "3",
+        "create-image.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-image.result.__Len__": "1",
+        "create-image.result.__Type__": "Map",
+        "create-image.result.__len__": "1",
+        "create-image.result.__type__": "Map",
+        "create-image.result.body": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson.__Len__": "1",
+        "create-image.result.bodyjson.__Type__": "Map",
+        "create-image.result.bodyjson.__len__": "1",
+        "create-image.result.bodyjson.__type__": "Map",
+        "create-image.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "read-image-admin.__len__": "3",
+        "read-image-admin.__type__": "Map",
+        "read-image-admin.result": "",
+        "read-image-client.__len__": "3",
+        "read-image-client.__type__": "Map",
+        "read-image-client.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "update-image",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test image",
+        "venom.testsuite.filename": "image.yml",
+        "venom.testsuite.filepath": "suites/image.yml",
+        "venom.testsuite.name": "test image",
+        "venom.testsuite.shortName": "image",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.115673527,
+       "start": "2024-01-27T02:49:38.994550819+01:00",
+       "end": "2024-01-27T02:49:39.110224346+01:00"
+      }
+     ]
+    },
+    {
+     "name": "delete-image",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-image.__len__": 8,
+      "create-image.__type__": "Map",
+      "create-image.id": 3,
+      "create-image.result": {
+       "body": "{\"id\":3}"
+      },
+      "create-image.result.__len__": 1,
+      "create-image.result.__type__": "Map",
+      "create-image.result.body": "{\"id\":3}",
+      "create-image.result.bodyjson": {
+       "id": 3
+      },
+      "create-image.result.bodyjson.__len__": 1,
+      "create-image.result.bodyjson.__type__": "Map",
+      "create-image.result.bodyjson.id": 3,
+      "employee_url": "http://localhost:8082/employee",
+      "read-image-admin.__len__": 3,
+      "read-image-admin.__type__": "Map",
+      "read-image-admin.result": "",
+      "read-image-client.__len__": 3,
+      "read-image-client.__type__": "Map",
+      "read-image-client.result": "",
+      "update-image.__len__": 3,
+      "update-image.__type__": "Map",
+      "update-image.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "delete-image",
+      "venom.testsuite": "test image",
+      "venom.testsuite.filename": "image.yml",
+      "venom.testsuite.filepath": "suites/image.yml",
+      "venom.testsuite.name": "test image",
+      "venom.testsuite.shortName": "image",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "path": "image/{{.create-image.id}}",
+       "type": "delete"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.117479242,
+     "start": "2024-01-27T02:49:39.110306342+01:00",
+     "end": "2024-01-27T02:49:39.227785574+01:00",
+     "results": [
+      {
+       "name": "delete",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "cGF0aDogaW1hZ2Uve3suY3JlYXRlLWltYWdlLmlkfX0KdHlwZTogZGVsZXRlCg==",
+       "interpolated": "cGF0aDogaW1hZ2UvMwp0eXBlOiBkZWxldGUK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "38",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-image.__len__": "8",
+        "create-image.__type__": "Map",
+        "create-image.id": "3",
+        "create-image.result": "{\\\"body\\\":\\\"{\\\\\\\"id\\\\\\\":3}\\\"}",
+        "create-image.result.__Len__": "1",
+        "create-image.result.__Type__": "Map",
+        "create-image.result.__len__": "1",
+        "create-image.result.__type__": "Map",
+        "create-image.result.body": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson": "{\\\"id\\\":3}",
+        "create-image.result.bodyjson.__Len__": "1",
+        "create-image.result.bodyjson.__Type__": "Map",
+        "create-image.result.bodyjson.__len__": "1",
+        "create-image.result.bodyjson.__type__": "Map",
+        "create-image.result.bodyjson.id": "3",
+        "employee_url": "http://localhost:8082/employee",
+        "read-image-admin.__len__": "3",
+        "read-image-admin.__type__": "Map",
+        "read-image-admin.result": "",
+        "read-image-client.__len__": "3",
+        "read-image-client.__type__": "Map",
+        "read-image-client.result": "",
+        "update-image.__len__": "3",
+        "update-image.__type__": "Map",
+        "update-image.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "delete-image",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test image",
+        "venom.testsuite.filename": "image.yml",
+        "venom.testsuite.filepath": "suites/image.yml",
+        "venom.testsuite.name": "test image",
+        "venom.testsuite.shortName": "image",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.113062996,
+       "start": "2024-01-27T02:49:39.114634721+01:00",
+       "end": "2024-01-27T02:49:39.227697687+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test image",
+    "venom.testsuite.filename": "image.yml",
+    "venom.testsuite.filepath": "suites/image.yml",
+    "venom.testsuite.name": "test image",
+    "venom.testsuite.shortName": "image",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "image",
+   "filename": "image.yml",
+   "filepath": "suites/image.yml",
+   "computed_vars": {
+    "create-image.__len__": 8,
+    "create-image.__type__": "Map",
+    "create-image.id": 3,
+    "create-image.result": {
+     "body": "{\"id\":3}"
+    },
+    "create-image.result.__len__": 1,
+    "create-image.result.__type__": "Map",
+    "create-image.result.body": "{\"id\":3}",
+    "create-image.result.bodyjson": {
+     "id": 3
+    },
+    "create-image.result.bodyjson.__len__": 1,
+    "create-image.result.bodyjson.__type__": "Map",
+    "create-image.result.bodyjson.id": 3,
+    "delete-image.__len__": 3,
+    "delete-image.__type__": "Map",
+    "delete-image.result": "",
+    "read-image-admin.__len__": 3,
+    "read-image-admin.__type__": "Map",
+    "read-image-admin.result": "",
+    "read-image-client.__len__": 3,
+    "read-image-client.__type__": "Map",
+    "read-image-client.result": "",
+    "update-image.__len__": 3,
+    "update-image.__type__": "Map",
+    "update-image.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.590061315,
+   "start": "2024-01-27T02:49:38.637754636+01:00",
+   "end": "2024-01-27T02:49:39.227815951+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 5,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test command",
+   "testcases": [
+    {
+     "name": "create-command",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "create-command",
+      "venom.testsuite": "test command",
+      "venom.testsuite.filename": "command.yml",
+      "venom.testsuite.filepath": "suites/command.yml",
+      "venom.testsuite.name": "test command",
+      "venom.testsuite.shortName": "command",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "assertions": [
+        "result.bodyjson ShouldContainKey at"
+       ],
+       "base_url": "http://localhost:8082/client",
+       "bodyFile": "models/command.json",
+       "path": "command",
+       "type": "create"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.13008447,
+     "start": "2024-01-27T02:49:39.227915881+01:00",
+     "end": "2024-01-27T02:49:39.35800037+01:00",
+     "results": [
+      {
+       "name": "create",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgYXQKYmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKYm9keUZpbGU6IG1vZGVscy9jb21tYW5kLmpzb24KcGF0aDogY29tbWFuZAp0eXBlOiBjcmVhdGUK",
+       "interpolated": "YXNzZXJ0aW9uczoKICAgIC0gcmVzdWx0LmJvZHlqc29uIFNob3VsZENvbnRhaW5LZXkgYXQKYmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKYm9keUZpbGU6IG1vZGVscy9jb21tYW5kLmpzb24KcGF0aDogY29tbWFuZAp0eXBlOiBjcmVhdGUK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "create-command",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test command",
+        "venom.testsuite.filename": "command.yml",
+        "venom.testsuite.filepath": "suites/command.yml",
+        "venom.testsuite.name": "test command",
+        "venom.testsuite.shortName": "command",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 10,
+        "__type__": "Map",
+        "result": {
+         "body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}",
+        "result.bodyjson": {
+         "at": "2024-01-27T02:49:39.35273814+01:00"
+        },
+        "result.bodyjson.__len__": 1,
+        "result.bodyjson.__type__": "Map",
+        "result.bodyjson.at": "2024-01-27T02:49:39.35273814+01:00",
+        "result.bodyjson.atjson": 2024,
+        "result.bodyjson.atjson.": 2024
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": [
+         {
+          "assertion": "result.bodyjson ShouldContainKey at",
+          "isOK": true
+         }
+        ]
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.125853636,
+       "start": "2024-01-27T02:49:39.231999696+01:00",
+       "end": "2024-01-27T02:49:39.357853302+01:00"
+      }
+     ]
+    },
+    {
+     "name": "read-command",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-command.__len__": 10,
+      "create-command.__type__": "Map",
+      "create-command.result": {
+       "body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}"
+      },
+      "create-command.result.__len__": 1,
+      "create-command.result.__type__": "Map",
+      "create-command.result.body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}",
+      "create-command.result.bodyjson": {
+       "at": "2024-01-27T02:49:39.35273814+01:00"
+      },
+      "create-command.result.bodyjson.__len__": 1,
+      "create-command.result.bodyjson.__type__": "Map",
+      "create-command.result.bodyjson.at": "2024-01-27T02:49:39.35273814+01:00",
+      "create-command.result.bodyjson.atjson": 2024,
+      "create-command.result.bodyjson.atjson.": 2024,
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "read-command",
+      "venom.testsuite": "test command",
+      "venom.testsuite.filename": "command.yml",
+      "venom.testsuite.filepath": "suites/command.yml",
+      "venom.testsuite.name": "test command",
+      "venom.testsuite.shortName": "command",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/employee",
+       "path": "command",
+       "type": "read"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.129063152,
+     "start": "2024-01-27T02:49:39.358022262+01:00",
+     "end": "2024-01-27T02:49:39.487085424+01:00",
+     "results": [
+      {
+       "name": "read",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9lbXBsb3llZQpwYXRoOiBjb21tYW5kCnR5cGU6IHJlYWQK",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9lbXBsb3llZQpwYXRoOiBjb21tYW5kCnR5cGU6IHJlYWQK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "30",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-command.__len__": "10",
+        "create-command.__type__": "Map",
+        "create-command.result": "{\\\"body\\\":\\\"{\\\\\\\"at\\\\\\\":\\\\\\\"2024-01-27T02:49:39.35273814+01:00\\\\\\\"}\\\"}",
+        "create-command.result.__Len__": "1",
+        "create-command.result.__Type__": "Map",
+        "create-command.result.__len__": "1",
+        "create-command.result.__type__": "Map",
+        "create-command.result.body": "{\\\"at\\\":\\\"2024-01-27T02:49:39.35273814+01:00\\\"}",
+        "create-command.result.bodyjson": "{\\\"at\\\":\\\"2024-01-27T02:49:39.35273814+01:00\\\"}",
+        "create-command.result.bodyjson.__Len__": "1",
+        "create-command.result.bodyjson.__Type__": "Map",
+        "create-command.result.bodyjson.__len__": "1",
+        "create-command.result.bodyjson.__type__": "Map",
+        "create-command.result.bodyjson.at": "2024-01-27T02:49:39.35273814+01:00",
+        "create-command.result.bodyjson.atjson": "2024",
+        "create-command.result.bodyjson.atjson.": "2024",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "read-command",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test command",
+        "venom.testsuite.filename": "command.yml",
+        "venom.testsuite.filepath": "suites/command.yml",
+        "venom.testsuite.name": "test command",
+        "venom.testsuite.shortName": "command",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.123511203,
+       "start": "2024-01-27T02:49:39.363501774+01:00",
+       "end": "2024-01-27T02:49:39.487012967+01:00"
+      }
+     ]
+    },
+    {
+     "name": "update-command-status",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "create-command.__len__": 10,
+      "create-command.__type__": "Map",
+      "create-command.result": {
+       "body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}"
+      },
+      "create-command.result.__len__": 1,
+      "create-command.result.__type__": "Map",
+      "create-command.result.body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}",
+      "create-command.result.bodyjson": {
+       "at": "2024-01-27T02:49:39.35273814+01:00"
+      },
+      "create-command.result.bodyjson.__len__": 1,
+      "create-command.result.bodyjson.__type__": "Map",
+      "create-command.result.bodyjson.at": "2024-01-27T02:49:39.35273814+01:00",
+      "create-command.result.bodyjson.atjson": 2024,
+      "create-command.result.bodyjson.atjson.": 2024,
+      "employee_url": "http://localhost:8082/employee",
+      "read-command.__len__": 3,
+      "read-command.__type__": "Map",
+      "read-command.result": "",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "update-command-status",
+      "venom.testsuite": "test command",
+      "venom.testsuite.filename": "command.yml",
+      "venom.testsuite.filepath": "suites/command.yml",
+      "venom.testsuite.name": "test command",
+      "venom.testsuite.shortName": "command",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8082/employee",
+       "bodyFile": "models/update_command_status.json",
+       "path": "order-status",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.149216405,
+     "start": "2024-01-27T02:49:39.48710405+01:00",
+     "end": "2024-01-27T02:49:39.636320455+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9lbXBsb3llZQpib2R5RmlsZTogbW9kZWxzL3VwZGF0ZV9jb21tYW5kX3N0YXR1cy5qc29uCnBhdGg6IG9yZGVyLXN0YXR1cwp0eXBlOiB1cGRhdGUK",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9lbXBsb3llZQpib2R5RmlsZTogbW9kZWxzL3VwZGF0ZV9jb21tYW5kX3N0YXR1cy5qc29uCnBhdGg6IG9yZGVyLXN0YXR1cwp0eXBlOiB1cGRhdGUK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "33",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "create-command.__len__": "10",
+        "create-command.__type__": "Map",
+        "create-command.result": "{\\\"body\\\":\\\"{\\\\\\\"at\\\\\\\":\\\\\\\"2024-01-27T02:49:39.35273814+01:00\\\\\\\"}\\\"}",
+        "create-command.result.__Len__": "1",
+        "create-command.result.__Type__": "Map",
+        "create-command.result.__len__": "1",
+        "create-command.result.__type__": "Map",
+        "create-command.result.body": "{\\\"at\\\":\\\"2024-01-27T02:49:39.35273814+01:00\\\"}",
+        "create-command.result.bodyjson": "{\\\"at\\\":\\\"2024-01-27T02:49:39.35273814+01:00\\\"}",
+        "create-command.result.bodyjson.__Len__": "1",
+        "create-command.result.bodyjson.__Type__": "Map",
+        "create-command.result.bodyjson.__len__": "1",
+        "create-command.result.bodyjson.__type__": "Map",
+        "create-command.result.bodyjson.at": "2024-01-27T02:49:39.35273814+01:00",
+        "create-command.result.bodyjson.atjson": "2024",
+        "create-command.result.bodyjson.atjson.": "2024",
+        "employee_url": "http://localhost:8082/employee",
+        "read-command.__len__": "3",
+        "read-command.__type__": "Map",
+        "read-command.result": "",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "update-command-status",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test command",
+        "venom.testsuite.filename": "command.yml",
+        "venom.testsuite.filepath": "suites/command.yml",
+        "venom.testsuite.name": "test command",
+        "venom.testsuite.shortName": "command",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.145035316,
+       "start": "2024-01-27T02:49:39.491204416+01:00",
+       "end": "2024-01-27T02:49:39.636239731+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test command",
+    "venom.testsuite.filename": "command.yml",
+    "venom.testsuite.filepath": "suites/command.yml",
+    "venom.testsuite.name": "test command",
+    "venom.testsuite.shortName": "command",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "command",
+   "filename": "command.yml",
+   "filepath": "suites/command.yml",
+   "computed_vars": {
+    "create-command.__len__": 10,
+    "create-command.__type__": "Map",
+    "create-command.result": {
+     "body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}"
+    },
+    "create-command.result.__len__": 1,
+    "create-command.result.__type__": "Map",
+    "create-command.result.body": "{\"at\":\"2024-01-27T02:49:39.35273814+01:00\"}",
+    "create-command.result.bodyjson": {
+     "at": "2024-01-27T02:49:39.35273814+01:00"
+    },
+    "create-command.result.bodyjson.__len__": 1,
+    "create-command.result.bodyjson.__type__": "Map",
+    "create-command.result.bodyjson.at": "2024-01-27T02:49:39.35273814+01:00",
+    "create-command.result.bodyjson.atjson": 2024,
+    "create-command.result.bodyjson.atjson.": 2024,
+    "read-command.__len__": 3,
+    "read-command.__type__": "Map",
+    "read-command.result": "",
+    "update-command-status.__len__": 3,
+    "update-command-status.__type__": "Map",
+    "update-command-status.result": ""
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 0.408529461,
+   "start": "2024-01-27T02:49:39.227816262+01:00",
+   "end": "2024-01-27T02:49:39.636345743+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 3,
+   "nbTestcasesSkip": 0
+  },
+  {
+   "name": "test auth",
+   "testcases": [
+    {
+     "name": "change-password-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "change-password-admin",
+      "venom.testsuite": "test auth",
+      "venom.testsuite.filename": "auth.yml",
+      "venom.testsuite.filepath": "suites/auth.yml",
+      "venom.testsuite.name": "test auth",
+      "venom.testsuite.shortName": "auth",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "bodyFile": "models/change_password.json",
+       "method": "POST",
+       "path": "auth/password/admin",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.302491078,
+     "start": "2024-01-27T02:49:39.636421947+01:00",
+     "end": "2024-01-27T02:49:39.938913024+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpib2R5RmlsZTogbW9kZWxzL2NoYW5nZV9wYXNzd29yZC5qc29uCm1ldGhvZDogUE9TVApwYXRoOiBhdXRoL3Bhc3N3b3JkL2FkbWluCnR5cGU6IHVwZGF0ZQo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpib2R5RmlsZTogbW9kZWxzL2NoYW5nZV9wYXNzd29yZC5qc29uCm1ldGhvZDogUE9TVApwYXRoOiBhdXRoL3Bhc3N3b3JkL2FkbWluCnR5cGU6IHVwZGF0ZQo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "18",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "change-password-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test auth",
+        "venom.testsuite.filename": "auth.yml",
+        "venom.testsuite.filepath": "suites/auth.yml",
+        "venom.testsuite.name": "test auth",
+        "venom.testsuite.shortName": "auth",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.29912846,
+       "start": "2024-01-27T02:49:39.639709963+01:00",
+       "end": "2024-01-27T02:49:39.938838413+01:00"
+      }
+     ]
+    },
+    {
+     "name": "change-password-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "change-password-admin.__len__": 3,
+      "change-password-admin.__type__": "Map",
+      "change-password-admin.result": "",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "change-password-client",
+      "venom.testsuite": "test auth",
+      "venom.testsuite.filename": "auth.yml",
+      "venom.testsuite.filepath": "suites/auth.yml",
+      "venom.testsuite.name": "test auth",
+      "venom.testsuite.shortName": "auth",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "bodyFile": "models/change_password.json",
+       "method": "POST",
+       "path": "auth/password/client",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.288988999,
+     "start": "2024-01-27T02:49:39.938929706+01:00",
+     "end": "2024-01-27T02:49:40.227918705+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpib2R5RmlsZTogbW9kZWxzL2NoYW5nZV9wYXNzd29yZC5qc29uCm1ldGhvZDogUE9TVApwYXRoOiBhdXRoL3Bhc3N3b3JkL2NsaWVudAp0eXBlOiB1cGRhdGUK",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpib2R5RmlsZTogbW9kZWxzL2NoYW5nZV9wYXNzd29yZC5qc29uCm1ldGhvZDogUE9TVApwYXRoOiBhdXRoL3Bhc3N3b3JkL2NsaWVudAp0eXBlOiB1cGRhdGUK",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "21",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "change-password-admin.__len__": "3",
+        "change-password-admin.__type__": "Map",
+        "change-password-admin.result": "",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "change-password-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test auth",
+        "venom.testsuite.filename": "auth.yml",
+        "venom.testsuite.filepath": "suites/auth.yml",
+        "venom.testsuite.name": "test auth",
+        "venom.testsuite.shortName": "auth",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.285309069,
+       "start": "2024-01-27T02:49:39.942507923+01:00",
+       "end": "2024-01-27T02:49:40.227816992+01:00"
+      }
+     ]
+    },
+    {
+     "name": "change-password-employee",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "change-password-admin.__len__": 3,
+      "change-password-admin.__type__": "Map",
+      "change-password-admin.result": "",
+      "change-password-client.__len__": 3,
+      "change-password-client.__type__": "Map",
+      "change-password-client.result": "",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "change-password-employee",
+      "venom.testsuite": "test auth",
+      "venom.testsuite.filename": "auth.yml",
+      "venom.testsuite.filepath": "suites/auth.yml",
+      "venom.testsuite.name": "test auth",
+      "venom.testsuite.shortName": "auth",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_url": "http://localhost:8081/admin",
+       "bodyFile": "models/change_password.json",
+       "method": "POST",
+       "path": "auth/password/employee",
+       "type": "update"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.282635098,
+     "start": "2024-01-27T02:49:40.227935767+01:00",
+     "end": "2024-01-27T02:49:40.510570835+01:00",
+     "results": [
+      {
+       "name": "update",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpib2R5RmlsZTogbW9kZWxzL2NoYW5nZV9wYXNzd29yZC5qc29uCm1ldGhvZDogUE9TVApwYXRoOiBhdXRoL3Bhc3N3b3JkL2VtcGxveWVlCnR5cGU6IHVwZGF0ZQo=",
+       "interpolated": "YmFzZV91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpib2R5RmlsZTogbW9kZWxzL2NoYW5nZV9wYXNzd29yZC5qc29uCm1ldGhvZDogUE9TVApwYXRoOiBhdXRoL3Bhc3N3b3JkL2VtcGxveWVlCnR5cGU6IHVwZGF0ZQo=",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "24",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "change-password-admin.__len__": "3",
+        "change-password-admin.__type__": "Map",
+        "change-password-admin.result": "",
+        "change-password-client.__len__": "3",
+        "change-password-client.__type__": "Map",
+        "change-password-client.result": "",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "change-password-employee",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test auth",
+        "venom.testsuite.filename": "auth.yml",
+        "venom.testsuite.filepath": "suites/auth.yml",
+        "venom.testsuite.name": "test auth",
+        "venom.testsuite.shortName": "auth",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 3,
+        "__type__": "Map",
+        "result": ""
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.279004332,
+       "start": "2024-01-27T02:49:40.231456996+01:00",
+       "end": "2024-01-27T02:49:40.510461308+01:00"
+      }
+     ]
+    },
+    {
+     "name": "login-with-wrong-password-admin",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "change-password-admin.__len__": 3,
+      "change-password-admin.__type__": "Map",
+      "change-password-admin.result": "",
+      "change-password-client.__len__": 3,
+      "change-password-client.__type__": "Map",
+      "change-password-client.result": "",
+      "change-password-employee.__len__": 3,
+      "change-password-employee.__type__": "Map",
+      "change-password-employee.result": "",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "login-with-wrong-password-admin",
+      "venom.testsuite": "test auth",
+      "venom.testsuite.filename": "auth.yml",
+      "venom.testsuite.filepath": "suites/auth.yml",
+      "venom.testsuite.name": "test auth",
+      "venom.testsuite.shortName": "auth",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_login_url": "http://localhost:8081/admin",
+       "expected_code": 401,
+       "password": "wrong-password",
+       "type": "with_login"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.113675198,
+     "start": "2024-01-27T02:49:40.510593418+01:00",
+     "end": "2024-01-27T02:49:40.624268646+01:00",
+     "results": [
+      {
+       "name": "with_login",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV9sb2dpbl91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpleHBlY3RlZF9jb2RlOiA0MDEKcGFzc3dvcmQ6IHdyb25nLXBhc3N3b3JkCnR5cGU6IHdpdGhfbG9naW4K",
+       "interpolated": "YmFzZV9sb2dpbl91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MS9hZG1pbgpleHBlY3RlZF9jb2RlOiA0MDEKcGFzc3dvcmQ6IHdyb25nLXBhc3N3b3JkCnR5cGU6IHdpdGhfbG9naW4K",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "27",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "change-password-admin.__len__": "3",
+        "change-password-admin.__type__": "Map",
+        "change-password-admin.result": "",
+        "change-password-client.__len__": "3",
+        "change-password-client.__type__": "Map",
+        "change-password-client.result": "",
+        "change-password-employee.__len__": "3",
+        "change-password-employee.__type__": "Map",
+        "change-password-employee.result": "",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "login-with-wrong-password-admin",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test auth",
+        "venom.testsuite.filename": "auth.yml",
+        "venom.testsuite.filepath": "suites/auth.yml",
+        "venom.testsuite.name": "test auth",
+        "venom.testsuite.shortName": "auth",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 6,
+        "__type__": "Map",
+        "result": {
+         "token": "Bearer {{.result.bodyjson.token}}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.token": "Bearer {{.result.bodyjson.token}}"
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.106249603,
+       "start": "2024-01-27T02:49:40.517923922+01:00",
+       "end": "2024-01-27T02:49:40.624173525+01:00"
+      }
+     ]
+    },
+    {
+     "name": "login-with-wrong-password-client",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "change-password-admin.__len__": 3,
+      "change-password-admin.__type__": "Map",
+      "change-password-admin.result": "",
+      "change-password-client.__len__": 3,
+      "change-password-client.__type__": "Map",
+      "change-password-client.result": "",
+      "change-password-employee.__len__": 3,
+      "change-password-employee.__type__": "Map",
+      "change-password-employee.result": "",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "login-with-wrong-password-admin.__len__": 6,
+      "login-with-wrong-password-admin.__type__": "Map",
+      "login-with-wrong-password-admin.result": {
+       "token": "Bearer {{.result.bodyjson.token}}"
+      },
+      "login-with-wrong-password-admin.result.__len__": 1,
+      "login-with-wrong-password-admin.result.__type__": "Map",
+      "login-with-wrong-password-admin.result.token": "Bearer {{.result.bodyjson.token}}",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "login-with-wrong-password-client",
+      "venom.testsuite": "test auth",
+      "venom.testsuite.filename": "auth.yml",
+      "venom.testsuite.filepath": "suites/auth.yml",
+      "venom.testsuite.name": "test auth",
+      "venom.testsuite.shortName": "auth",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_login_url": "http://localhost:8082/client",
+       "expected_code": 401,
+       "password": "wrong-password",
+       "type": "with_login"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.114645708,
+     "start": "2024-01-27T02:49:40.624288383+01:00",
+     "end": "2024-01-27T02:49:40.738934091+01:00",
+     "results": [
+      {
+       "name": "with_login",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV9sb2dpbl91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKZXhwZWN0ZWRfY29kZTogNDAxCnBhc3N3b3JkOiB3cm9uZy1wYXNzd29yZAp0eXBlOiB3aXRoX2xvZ2luCg==",
+       "interpolated": "YmFzZV9sb2dpbl91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9jbGllbnQKZXhwZWN0ZWRfY29kZTogNDAxCnBhc3N3b3JkOiB3cm9uZy1wYXNzd29yZAp0eXBlOiB3aXRoX2xvZ2luCg==",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "33",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "change-password-admin.__len__": "3",
+        "change-password-admin.__type__": "Map",
+        "change-password-admin.result": "",
+        "change-password-client.__len__": "3",
+        "change-password-client.__type__": "Map",
+        "change-password-client.result": "",
+        "change-password-employee.__len__": "3",
+        "change-password-employee.__type__": "Map",
+        "change-password-employee.result": "",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "login-with-wrong-password-admin.__len__": "6",
+        "login-with-wrong-password-admin.__type__": "Map",
+        "login-with-wrong-password-admin.result": "{\\\"token\\\":\\\"Bearer {{.result.bodyjson.token}}\\\"}",
+        "login-with-wrong-password-admin.result.__Len__": "1",
+        "login-with-wrong-password-admin.result.__Type__": "Map",
+        "login-with-wrong-password-admin.result.__len__": "1",
+        "login-with-wrong-password-admin.result.__type__": "Map",
+        "login-with-wrong-password-admin.result.token": "Bearer {{.result.bodyjson.token}}",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "login-with-wrong-password-client",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test auth",
+        "venom.testsuite.filename": "auth.yml",
+        "venom.testsuite.filepath": "suites/auth.yml",
+        "venom.testsuite.name": "test auth",
+        "venom.testsuite.shortName": "auth",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 6,
+        "__type__": "Map",
+        "result": {
+         "token": "Bearer {{.result.bodyjson.token}}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.token": "Bearer {{.result.bodyjson.token}}"
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.110369467,
+       "start": "2024-01-27T02:49:40.62847332+01:00",
+       "end": "2024-01-27T02:49:40.738842798+01:00"
+      }
+     ]
+    },
+    {
+     "name": "login-with-wrong-password-employee",
+     "vars": {
+      "__Len__": "11",
+      "__Type__": "Map",
+      "admin_url": "http://localhost:8081/admin",
+      "change-password-admin.__len__": 3,
+      "change-password-admin.__type__": "Map",
+      "change-password-admin.result": "",
+      "change-password-client.__len__": 3,
+      "change-password-client.__type__": "Map",
+      "change-password-client.result": "",
+      "change-password-employee.__len__": 3,
+      "change-password-employee.__type__": "Map",
+      "change-password-employee.result": "",
+      "client_url": "http://localhost:8082/client",
+      "employee_url": "http://localhost:8082/employee",
+      "login-with-wrong-password-admin.__len__": 6,
+      "login-with-wrong-password-admin.__type__": "Map",
+      "login-with-wrong-password-admin.result": {
+       "token": "Bearer {{.result.bodyjson.token}}"
+      },
+      "login-with-wrong-password-admin.result.__len__": 1,
+      "login-with-wrong-password-admin.result.__type__": "Map",
+      "login-with-wrong-password-admin.result.token": "Bearer {{.result.bodyjson.token}}",
+      "login-with-wrong-password-client.__len__": 6,
+      "login-with-wrong-password-client.__type__": "Map",
+      "login-with-wrong-password-client.result": {
+       "token": "Bearer {{.result.bodyjson.token}}"
+      },
+      "login-with-wrong-password-client.result.__len__": 1,
+      "login-with-wrong-password-client.result.__type__": "Map",
+      "login-with-wrong-password-client.result.token": "Bearer {{.result.bodyjson.token}}",
+      "venom.datetime": "2024-01-27T02:49:36+01:00",
+      "venom.executable": "/usr/local/bin/venom",
+      "venom.libdir": "",
+      "venom.outputdir": "venom",
+      "venom.testcase": "login-with-wrong-password-employee",
+      "venom.testsuite": "test auth",
+      "venom.testsuite.filename": "auth.yml",
+      "venom.testsuite.filepath": "suites/auth.yml",
+      "venom.testsuite.name": "test auth",
+      "venom.testsuite.shortName": "auth",
+      "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+      "venom.timestamp": "1706320176"
+     },
+     "skip": null,
+     "steps": [
+      {
+       "base_login_url": "http://localhost:8082/employee",
+       "expected_code": 401,
+       "password": "wrong-password",
+       "type": "with_login"
+      }
+     ],
+     "skipped": null,
+     "status": "PASS",
+     "duration": 0.106343683,
+     "start": "2024-01-27T02:49:40.738950943+01:00",
+     "end": "2024-01-27T02:49:40.845294626+01:00",
+     "results": [
+      {
+       "name": "with_login",
+       "errors": null,
+       "skipped": null,
+       "status": "PASS",
+       "raw": "YmFzZV9sb2dpbl91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9lbXBsb3llZQpleHBlY3RlZF9jb2RlOiA0MDEKcGFzc3dvcmQ6IHdyb25nLXBhc3N3b3JkCnR5cGU6IHdpdGhfbG9naW4K",
+       "interpolated": "YmFzZV9sb2dpbl91cmw6IGh0dHA6Ly9sb2NhbGhvc3Q6ODA4Mi9lbXBsb3llZQpleHBlY3RlZF9jb2RlOiA0MDEKcGFzc3dvcmQ6IHdyb25nLXBhc3N3b3JkCnR5cGU6IHdpdGhfbG9naW4K",
+       "number": 0,
+       "rangedIndex": 0,
+       "rangedEnable": false,
+       "inputVars": {
+        "__Len__": "39",
+        "__Type__": "Map",
+        "admin_url": "http://localhost:8081/admin",
+        "change-password-admin.__len__": "3",
+        "change-password-admin.__type__": "Map",
+        "change-password-admin.result": "",
+        "change-password-client.__len__": "3",
+        "change-password-client.__type__": "Map",
+        "change-password-client.result": "",
+        "change-password-employee.__len__": "3",
+        "change-password-employee.__type__": "Map",
+        "change-password-employee.result": "",
+        "client_url": "http://localhost:8082/client",
+        "employee_url": "http://localhost:8082/employee",
+        "login-with-wrong-password-admin.__len__": "6",
+        "login-with-wrong-password-admin.__type__": "Map",
+        "login-with-wrong-password-admin.result": "{\\\"token\\\":\\\"Bearer {{.result.bodyjson.token}}\\\"}",
+        "login-with-wrong-password-admin.result.__Len__": "1",
+        "login-with-wrong-password-admin.result.__Type__": "Map",
+        "login-with-wrong-password-admin.result.__len__": "1",
+        "login-with-wrong-password-admin.result.__type__": "Map",
+        "login-with-wrong-password-admin.result.token": "Bearer {{.result.bodyjson.token}}",
+        "login-with-wrong-password-client.__len__": "6",
+        "login-with-wrong-password-client.__type__": "Map",
+        "login-with-wrong-password-client.result": "{\\\"token\\\":\\\"Bearer {{.result.bodyjson.token}}\\\"}",
+        "login-with-wrong-password-client.result.__Len__": "1",
+        "login-with-wrong-password-client.result.__Type__": "Map",
+        "login-with-wrong-password-client.result.__len__": "1",
+        "login-with-wrong-password-client.result.__type__": "Map",
+        "login-with-wrong-password-client.result.token": "Bearer {{.result.bodyjson.token}}",
+        "venom.datetime": "2024-01-27T02:49:36+01:00",
+        "venom.executable": "/usr/local/bin/venom",
+        "venom.libdir": "",
+        "venom.outputdir": "venom",
+        "venom.testcase": "login-with-wrong-password-employee",
+        "venom.teststep.number": "0",
+        "venom.testsuite": "test auth",
+        "venom.testsuite.filename": "auth.yml",
+        "venom.testsuite.filepath": "suites/auth.yml",
+        "venom.testsuite.name": "test auth",
+        "venom.testsuite.shortName": "auth",
+        "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+        "venom.timestamp": "1706320176"
+       },
+       "computedVars": {
+        "__len__": 6,
+        "__type__": "Map",
+        "result": {
+         "token": "Bearer {{.result.bodyjson.token}}"
+        },
+        "result.__len__": 1,
+        "result.__type__": "Map",
+        "result.token": "Bearer {{.result.bodyjson.token}}"
+       },
+       "computedInfos": null,
+       "assertionsApplied": {
+        "ok": true,
+        "assertions": []
+       },
+       "systemout": "\n",
+       "systemerr": "\n",
+       "duration": 0.101009155,
+       "start": "2024-01-27T02:49:40.744188827+01:00",
+       "end": "2024-01-27T02:49:40.845197992+01:00"
+      }
+     ]
+    }
+   ],
+   "vars": {
+    "__Len__": "11",
+    "__Type__": "Map",
+    "admin_url": "http://localhost:8081/admin",
+    "client_url": "http://localhost:8082/client",
+    "employee_url": "http://localhost:8082/employee",
+    "venom.datetime": "2024-01-27T02:49:36+01:00",
+    "venom.executable": "/usr/local/bin/venom",
+    "venom.libdir": "",
+    "venom.outputdir": "venom",
+    "venom.testsuite": "test auth",
+    "venom.testsuite.filename": "auth.yml",
+    "venom.testsuite.filepath": "suites/auth.yml",
+    "venom.testsuite.name": "test auth",
+    "venom.testsuite.shortName": "auth",
+    "venom.testsuite.workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+    "venom.timestamp": "1706320176"
+   },
+   "shortname": "auth",
+   "filename": "auth.yml",
+   "filepath": "suites/auth.yml",
+   "computed_vars": {
+    "change-password-admin.__len__": 3,
+    "change-password-admin.__type__": "Map",
+    "change-password-admin.result": "",
+    "change-password-client.__len__": 3,
+    "change-password-client.__type__": "Map",
+    "change-password-client.result": "",
+    "change-password-employee.__len__": 3,
+    "change-password-employee.__type__": "Map",
+    "change-password-employee.result": "",
+    "login-with-wrong-password-admin.__len__": 6,
+    "login-with-wrong-password-admin.__type__": "Map",
+    "login-with-wrong-password-admin.result": {
+     "token": "Bearer {{.result.bodyjson.token}}"
+    },
+    "login-with-wrong-password-admin.result.__len__": 1,
+    "login-with-wrong-password-admin.result.__type__": "Map",
+    "login-with-wrong-password-admin.result.token": "Bearer {{.result.bodyjson.token}}",
+    "login-with-wrong-password-client.__len__": 6,
+    "login-with-wrong-password-client.__type__": "Map",
+    "login-with-wrong-password-client.result": {
+     "token": "Bearer {{.result.bodyjson.token}}"
+    },
+    "login-with-wrong-password-client.result.__len__": 1,
+    "login-with-wrong-password-client.result.__type__": "Map",
+    "login-with-wrong-password-client.result.token": "Bearer {{.result.bodyjson.token}}",
+    "login-with-wrong-password-employee.__len__": 6,
+    "login-with-wrong-password-employee.__type__": "Map",
+    "login-with-wrong-password-employee.result": {
+     "token": "Bearer {{.result.bodyjson.token}}"
+    },
+    "login-with-wrong-password-employee.result.__len__": 1,
+    "login-with-wrong-password-employee.result.__type__": "Map",
+    "login-with-wrong-password-employee.result.token": "Bearer {{.result.bodyjson.token}}"
+   },
+   "workdir": "/home/ddc/U-SUSHI/backend/tests/suites",
+   "status": "PASS",
+   "duration": 1.208985723,
+   "start": "2024-01-27T02:49:39.636346093+01:00",
+   "end": "2024-01-27T02:49:40.845331816+01:00",
+   "nbTestcasesFail": 0,
+   "nbTestcasesPass": 6,
+   "nbTestcasesSkip": 0
+  }
+ ],
+ "status": "PASS",
+ "nbTestsuitesFail": 0,
+ "nbTestsuitesPass": 8,
+ "nbTestsuitesSkip": 0,
+ "duration": 4.631291732,
+ "start": "2024-01-27T02:49:36.214040435+01:00",
+ "end": "2024-01-27T02:49:40.845332167+01:00"
+};
+
+      var nb = 0;
+      var testsuites = "";
+      for (var i = 0; i < a.test_suites.length; i++) { 
+        if (a.test_suites[i]) {
+          testsuites += navbartestsuite(i, a.test_suites[i]); 
+        }
+        nb++;
+      }
+
+      var infob = '';
+      if (a.nbTestsuitesFail > 0) {
+        var badge = '<span class="badge text-bg-danger">'+a.nbTestsuitesFail+' FAILED</span>';
+        infob += badge;
+      }
+      if (a.nbTestsuitesPass > 0) {
+        var badge = '<span class="badge text-bg-success">'+a.nbTestsuitesPass+' PASSED</span>';
+        infob += badge;
+      }
+      if (a.nbTestsuitesSkip > 0) {
+        var badge = '<span class="badge text-bg-secondary">'+a.nbTestsuitesSkip+' SKIPPED</span>';
+        infob += badge;
+      }
+      var testsuiteDisplay = '';
+      
+      testsuiteDisplay = '<div class="">';
+      testsuiteDisplay = '<div class="fs-5 fw-semibold">';
+      testsuiteDisplay += 'Tests Suites';
+      testsuiteDisplay += '</div>';
+      testsuiteDisplay += '<small>'+infob+'</small>';
+      testsuiteDisplay += '</div>';
+      
+
+      testsuiteDisplay += '<ul>';
+
+      testsuiteDisplay += '<li>Duration: <code class="nt">'+parseFloat(a.duration).toFixed(2)+'s</code></li>';
+      testsuiteDisplay += '<li>Start: <code class="nt">'+ToLocaleString(a.start)+'</code></li>';
+      testsuiteDisplay += '<li>End: <code class="nt">'+ToLocaleString(a.end)+'</code></li>';
+      testsuiteDisplay += '</ul>';
+
+      $('#title-nav-testsuites').html(testsuiteDisplay);
+      $('#testsuites').html(testsuites)
+
+      $('#testsuites li').on('click', function () {
+        var data = a.test_suites[this.id];
+
+        var info = "";
+        info += '<ul>'
+        
+        info += '<li>Filepath: <code class="nt">'+data.filepath+'</code></li>';
+        info += '<li>Workdir: <code class="nt">'+data.workdir+'</code></li>';
+        info += '<li>Duration: <code class="nt">'+parseFloat(data.duration).toFixed(2)+'s</code></li>';
+        info += '<li>Start: <code class="nt">'+ToLocaleString(data.start)+'</code></li>';
+        info += '<li>End: <code class="nt">'+ToLocaleString(data.end)+'</code></li>';
+        if (data.testcases) {
+          info += '<li>Testcases: <code class="nt">'+data.testcases.length+'</code></li>';
+        } else {
+          info += '<li>Testcases: 0</li>';
+        }
+
+        if (data.vars) {
+          info += '<li>Variables: ';
+          info += '<a href="#" data-bs-toggle="modal" data-bs-target="#varsModal">';
+          info += Object.keys(data.vars).length;
+          info += '</li>';
+          $('#testsuite-vars').html("<pre>"+YAML.stringify(data.vars)+"</pre>")
+        }
+
+        info += '</ul>';
+        $('#testsuite_infos').html(info);
+
+        var infob = "";
+        if (data.nbTestcasesFail > 0) {
+          var badge = '<span class="badge text-bg-danger">'+data.nbTestcasesFail+' FAILED</span>';
+          infob += badge;
+        }
+        if (data.nbTestcasesPass > 0) {
+          var badge = '<span class="badge text-bg-success">'+data.nbTestcasesPass+' PASSED</span>';
+          infob += badge;
+        }
+        if (data.nbTestcasesSkip > 0) {
+          var badge = '<span class="badge text-bg-secondary">'+data.nbTestcasesSkip+' SKIPPED</span>';
+          infob += badge;
+        }
+
+        $('#testsuite').html(data.name);
+        $('#testsuite-badges').html(infob);
+        middletestsuite(i, data);
+      });
+    });
+  })()
+
+  function ToLocaleString(dateTime) {
+    var date = Date.parse(dateTime);
+    var d = new Date(date)
+    return d.toLocaleString();
+  }
+
+  function navbartestsuite(idx, testsuite) {
+    var badges = '<span class="badge rounded-pill float-right text-bg-'+colorStatus(testsuite.status)+'" title="'+colorStatus(testsuite.status)+'">'+testsuite.status+'</span>';
+    var name = testsuite.name;
+    if (name === '') {
+      name = "N/A";
+    }
+    
+    var r = '<li class="list-group-item list-group-item-action py-3 lh-sm" id="'+idx+'">';
+
+    r += '<div class="d-flex w-100 align-items-center justify-content-between">';
+    r += '<strong class="mb-1">'+name+'</strong>';
+    
+    r += '<small>'+badges+'</small>';
+
+    r += '<span class="position-absolute top-0 translate-middle rounded-pill text-bg-light start-97">';
+    r += '<small>'+(idx+1)+'</small>';
+    r += '</span>';
+
+    r += '</div>';
+
+    r += '<div class="col-10 mb-1 small">'+parseFloat(testsuite.duration).toFixed(2)+'s</div>';
+
+    r += '</li>';
+    return r;
+  }
+
+  function colorStatus(status) {
+    switch (status) {
+    case "PASS":
+        return "success";
+        break;
+    case "RUN":
+        return "primary";
+        break;
+    case "FAIL":
+        return "danger";
+        break;
+    case "SKIP":
+        return "secondary";
+        break;
+    }
+  }
+
+  function middletestsuite(idx, testsuite) {
+    $('#testcases').html('');
+    if (testsuite.testcases) {
+      var testcases = "";
+      for (var i = 0; i < testsuite.testcases.length; i++) {
+        var testcase = testsuite.testcases[i];
+       
+        var r = "";
+        var status = colorStatus(testcase.status);
+        var badgeTC = '<span class="badge rounded-pill float-right text-bg-'+colorStatus(testsuite.status)+'" title="'+colorStatus(testsuite.status)+'">'+testsuite.status+'</span>';
+
+        var border = "border-"+status;
+
+        r += '<div class="card bg-light mb-3 w-100 '+border+'" style="width: 18rem;">';
+        r += '  <div class="card-header bg-transparent '+border+' text-'+status+'">';
+        r += '   testcase: '+testcase.name+' '+badgeTC;
+        r += '  </div>';
+        r += '  <ul class="list-group list-group-flush">';
+
+        if (testcase.skipped && testcase.skipped.length > 0) {
+          r += '<button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#skipped-'+i+''+j+'">Skipped Info</button>';
+          r += '<div id="skipped-'+i+''+j+'" class="collapse show"><ul>';
+          for (var k = 0; k < testcase.skipped.length; k++) {
+            r += '<li><span class="badge rounded-pill text-bg-info" title="info">Info</span>';
+            r += ' <code class="nt">'+testcase.skipped[k].value+'</code></li>';
+          }
+          r += '</ul></div>';
+        }
+
+        if (testcase.results) {
+          for (var j = 0; j < testcase.results.length; j++) {
+            var result = testcase.results[j];
+            var badgeR = '<span class="badge rounded-pill text-bg-'+colorStatus(result.status)+'" title="'+colorStatus(result.status)+'">'+result.status+'</span>';
+
+            r += '<ul class="nav nav-tabs">';
+            r += '<li class="nav-item">';
+            r += '<a class="nav-link disabled">step '+(result.number+1)+': '+result.name + ' <code>'+parseFloat(result.duration).toFixed(2)+'s</code> ';
+            r +=  badgeR;
+            r +=  '</a>';
+            r += '</li>';
+
+            if (result.errors && result.errors !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#errors-'+i+''+j+'")>Errors</a>';
+              r += '</li>';
+            }
+            if (result.raw && result.raw !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#raw-'+i+''+j+'")>Raw</a>';
+              r += '</li>';
+            }
+            if (result.interpolated && result.interpolated !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#interpolated-'+i+''+j+'")>Raw Interpolated</a>';
+              r += '</li>';
+            }
+            if (result.computedInfos && result.computedInfos !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#computedInfos-'+i+''+j+'")>Computed Infos</a>';
+              r += '</li>';
+            }
+            if (result.systemout && result.systemout !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#systemout-'+i+''+j+'")>System Out</a>';
+              r += '</li>';
+            }
+            if (result.systemerr && result.systemerr !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#systemerr-'+i+''+j+'")>System Err</a>';
+              r += '</li>';
+            }
+            if (result.inputVars && result.inputVars !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#inputVars-'+i+''+j+'")>Input Vars</a>';
+              r += '</li>';
+            }
+            if (result.computedVars && result.computedVars !== '') {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#computedVars-'+i+''+j+'")>Computed Vars</a>';
+              r += '</li>';
+            }
+            if (result.assertionsApplied && result.assertionsApplied.assertions && result.assertionsApplied.assertions.length > 0) {
+              r += '<li class="nav-item">';
+              r += '<a class="nav-link" aria-current="page" href="#" data-bs-toggle="collapse" onclick=toggle("#assertionsApplied-'+i+''+j+'")>Assertions applied Infos</a>';
+              r += '</li>';
+            }
+
+            r += '</ul>';
+
+            if (result.errors) {
+              r += '<div id="errors-'+i+''+j+'" class="collapse multi-collapse p-3"><ul>';
+              for (var k = 0; k < result.errors.length; k++) {
+                r += '<li><span class="badge rounded-pill text-bg-danger" title="info">FAIL</span>';
+                r += ' <code class="nt">'+result.errors[k].value+'</code></li>';
+              }
+              r += '</ul></div>';
+            }
+
+            if (result.raw && result.raw !== '') {
+              r += '<div id="raw-'+i+''+j+'" class="collapse multi-collapse p-3">';
+              r += '  <pre>'+decodeURIComponent(escape(atob(result.raw)))+'</pre>';
+              r += '</div>';
+            }
+            if (result.interpolated && result.interpolated !== '') {
+              r += '<div id="interpolated-'+i+''+j+'" class="collapse multi-collapse p-3">';
+              r += '  <pre>'+decodeURIComponent(escape(atob(result.interpolated)))+'</pre>';
+              r += '</div>';
+            }
+            if (result.computedInfos && result.computedInfos !== '') {
+              r += '<div id="computedInfos-'+i+''+j+'" class="collapse multi-collapse p-3"><ul>';
+              for (var k = 0; k < result.computedInfos.length; k++) {
+                r += '<li><span class="badge rounded-pill text-bg-info" title="info">Info</span>';
+                r += ' <code class="nt">'+result.computedInfos[k]+'</code></li>';
+              }
+              r += '</ul></div>';
+            }
+            if (result.systemout && result.systemout !== '') {
+              r += '<div id="systemout-'+i+''+j+'" class="collapse multi-collapse p-3">';
+              r += '  <pre>'+YAML.stringify(result.systemout)+'</pre>';
+              r += '</div>';
+            }
+            if (result.systemerr && result.systemerr !== '') {
+              r += '<div id="systemerr-'+i+''+j+'" class="collapse multi-collapse p-3">';
+              r += '  <pre>'+YAML.stringify(result.systemerr)+'</pre>';
+              r += '</div>';
+            }
+            if (result.inputVars && result.inputVars !== '') {
+              r += '<div id="inputVars-'+i+''+j+'" class="collapse multi-collapse p-3">';
+              r += '  <pre>'+YAML.stringify(result.inputVars)+'</pre>';
+              r += '</div>';
+            }
+            if (result.computedVars && result.computedVars !== '') {
+              r += '<div id="computedVars-'+i+''+j+'" class="collapse multi-collapse p-3">';
+              r += '  <pre>'+YAML.stringify(result.computedVars)+'</pre>';
+              r += '</div>';
+            }
+            if (result.assertionsApplied && result.assertionsApplied.assertions && result.assertionsApplied.assertions.length > 0) {
+              r += '<div id="assertionsApplied-'+i+''+j+'" class="collapse multi-collapse p-3"><ul>';
+              for (var k = 0; k < result.assertionsApplied.assertions.length; k++) {
+                var assertionStatus = "PASS";
+                if (result.assertionsApplied.assertions[k].isOK !== true) {
+                  assertionStatus = "FAIL";
+                }
+                r += '<li><span class="badge rounded-pill text-bg-'+colorStatus(assertionStatus)+'" title="'+colorStatus(assertionStatus)+'">'+assertionStatus+'</span>';
+
+                r += ' <code class="nt">'+result.assertionsApplied.assertions[k].assertion+'</code></li>'; 
+              }
+              r += '</ul></div>';
+            }
+
+            r += '</li>';
+          }
+        }
+        r += '  </ul>';
+
+        r += '  <div class="card-footer '+border+'">';
+        r += '    <small class="text-muted">'+parseFloat(testcase.duration).toFixed(2)+'s';
+        r += ' - start:'+ToLocaleString(testcase.start);
+        r += ' - end:'+ToLocaleString(testcase.end);
+        r += '</small>';
+        r += '  </div>';
+
+        r += '</div>';
+        testcases += r;
+      }
+      var cards = '<div class="">'+testcases+'</div>';
+      $('#testcases').html(cards);
+    }
+  }
+
+  function toggle(id) {
+    $(".multi-collapse").hide();
+    $(id).show();
+  }
+
+  function dis(id, value, sing, plu) {
+    $(id).hide()
+    if (value == 1) {
+      $(id).html(value + " " + sing);
+      $(id).show()
+    } else if (value > 1) {
+        $(id).html(value + " " + plu);
+        $(id).show()
+    }
+  }
+  </script>  
+  </body>
+</html>

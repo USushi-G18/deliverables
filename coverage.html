@@ -1,0 +1,1510 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>auth: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">u-sushi/auth/jwt.go (80.0%)</option>
+				
+				<option value="file1">u-sushi/auth/middleware.go (66.7%)</option>
+				
+				<option value="file2">u-sushi/auth/password.go (73.8%)</option>
+				
+				<option value="file3">u-sushi/db.go (80.0%)</option>
+				
+				<option value="file4">u-sushi/handlers/auth/auth.go (64.4%)</option>
+				
+				<option value="file5">u-sushi/handlers/command/checks.go (71.4%)</option>
+				
+				<option value="file6">u-sushi/handlers/command/command.go (52.6%)</option>
+				
+				<option value="file7">u-sushi/handlers/image/image.go (71.4%)</option>
+				
+				<option value="file8">u-sushi/handlers/plate/allergen.go (58.3%)</option>
+				
+				<option value="file9">u-sushi/handlers/plate/category.go (71.4%)</option>
+				
+				<option value="file10">u-sushi/handlers/plate/ingredient.go (58.3%)</option>
+				
+				<option value="file11">u-sushi/handlers/plate/plate.go (70.4%)</option>
+				
+				<option value="file12">u-sushi/handlers/plate/plate_ingredient.go (69.7%)</option>
+				
+				<option value="file13">u-sushi/server/routes/admin/routes.go (100.0%)</option>
+				
+				<option value="file14">u-sushi/server/routes/client/routes.go (100.0%)</option>
+				
+				<option value="file15">u-sushi/server/routes/employee/routes.go (100.0%)</option>
+				
+				<option value="file16">u-sushi/server/server.go (85.7%)</option>
+				
+				<option value="file17">u-sushi/utils.go (84.6%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package auth
+
+import (
+        "crypto/rsa"
+        "errors"
+        "fmt"
+        "net/http"
+        "os"
+        "strings"
+        "time"
+        "u-sushi/models"
+
+        "github.com/golang-jwt/jwt/v5"
+        "gopkg.in/guregu/null.v4"
+)
+
+// This is just a toy project so we wont implement refresh tokens
+// just an access token with a really long expiration time
+const (
+        TokenExpirationTime = 7 * 24 * time.Hour
+)
+
+var (
+        ErrAuthorizationRequired = errors.New("bearer authorization required")
+)
+
+var (
+        Key *rsa.PrivateKey
+)
+
+type UserClaims struct {
+        jwt.MapClaims
+        UserType  models.UserType
+        SessionID null.Int
+}
+
+func LoadKey() error <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("load key: %v", err)
+        }</span>
+        <span class="cov8" title="1">if Key != nil </span><span class="cov8" title="1">{
+                return nil
+        }</span>
+        <span class="cov8" title="1">keyFilePath := os.Getenv("KEY_FILE")
+        keyFile, err := os.ReadFile(keyFilePath)
+        if err != nil </span><span class="cov0" title="0">{
+                return wrapErr(err)
+        }</span>
+        <span class="cov8" title="1">Key, err = jwt.ParseRSAPrivateKeyFromPEM(keyFile)
+        if err != nil </span><span class="cov0" title="0">{
+                return wrapErr(err)
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func CreateJWT(userType models.UserType, sessionID null.Int) (string, error) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("create jwt: %v", err)
+        }</span>
+        <span class="cov8" title="1">now := time.Now()
+        claims := jwt.MapClaims{
+                "iss":      "u-sushi",
+                "iat":      now.Unix(),
+                "exp":      now.Add(TokenExpirationTime).Unix(),
+                "userType": userType,
+        }
+        if sessionID.Valid </span><span class="cov8" title="1">{
+                claims["sessionID"] = sessionID.Int64
+        }</span>
+        <span class="cov8" title="1">t := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+        token, err := t.SignedString(Key)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", wrapErr(err)
+        }</span>
+        <span class="cov8" title="1">return token, nil</span>
+}
+
+func ParseJWT(tokenString string) (*jwt.Token, error) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("parsing token: %v", err)
+        }</span>
+        <span class="cov8" title="1">token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) </span><span class="cov8" title="1">{
+                return &amp;Key.PublicKey, nil
+        }</span>)
+        <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
+                return nil, wrapErr(err)
+        }</span>
+        <span class="cov8" title="1">return token, nil</span>
+}
+
+func ParseClaims(token *jwt.Token) UserClaims <span class="cov8" title="1">{
+        claims := token.Claims.(jwt.MapClaims)
+        userClaims := UserClaims{
+                MapClaims: claims,
+                UserType:  models.UserType(claims["userType"].(string)),
+                SessionID: null.Int{},
+        }
+        if sessionID, ok := claims["sessionID"]; ok </span><span class="cov8" title="1">{
+                userClaims.SessionID = null.IntFrom(int64(sessionID.(float64)))
+        }</span>
+        <span class="cov8" title="1">return userClaims</span>
+}
+
+const TokenPrefix string = "Bearer "
+
+func ExtractJWT(r *http.Request) (*jwt.Token, error) <span class="cov8" title="1">{
+        tokenStr := r.Header.Get("Authorization")
+        if !strings.HasPrefix(tokenStr, TokenPrefix) </span><span class="cov0" title="0">{
+                return nil, ErrAuthorizationRequired
+        }</span>
+        <span class="cov8" title="1">tokenStr = tokenStr[len(TokenPrefix):]
+        return ParseJWT(tokenStr)</span>
+}
+
+func ExtractClaims(r *http.Request) (*UserClaims, error) <span class="cov8" title="1">{
+        token, err := ExtractJWT(r)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">claims := ParseClaims(token)
+        return &amp;claims, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package auth
+
+import (
+        "fmt"
+        "net/http"
+        "strings"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+)
+
+func AdminAuthMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return authMiddleware(next, models.UserAdmin)
+}</span>
+
+func ClientAuthMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return authMiddleware(next, models.UserClient)
+}</span>
+
+func EmployeeAuthMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return authMiddleware(next, models.UserEmployee)
+}</span>
+
+func unauthorizedErr(userType models.UserType) error <span class="cov0" title="0">{
+        return fmt.Errorf("only %s can access this route", strings.ToLower(string(userType)))
+}</span>
+
+func authMiddleware(next http.Handler, userType models.UserType) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                // do not ask authorization for auth routes
+                if strings.Contains(r.URL.Path, "/auth/") </span><span class="cov8" title="1">{
+                        next.ServeHTTP(w, r)
+                        return
+                }</span>
+                <span class="cov8" title="1">if claims, err := ExtractClaims(r); err != nil </span><span class="cov0" title="0">{
+                        u_sushi.HttpError(w, http.StatusUnauthorized, err)
+                        return
+                }</span> else<span class="cov8" title="1"> if claims.UserType != userType </span><span class="cov0" title="0">{
+                        u_sushi.HttpError(w, http.StatusUnauthorized, unauthorizedErr(userType))
+                        return
+                }</span>
+
+                <span class="cov8" title="1">next.ServeHTTP(w, r)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package auth
+
+import (
+        "crypto/rand"
+        "crypto/subtle"
+        "encoding/base64"
+        "errors"
+        "fmt"
+        "strings"
+
+        "golang.org/x/crypto/argon2"
+)
+
+var (
+        ErrWrongPassword = errors.New("wrong password")
+        ErrInvalidHash   = errors.New("invalid hash")
+)
+
+type Argon2Params struct {
+        Memory      uint32
+        Iterations  uint32
+        Parallelism uint8
+        SaltLength  uint32
+        KeyLength   uint32
+}
+
+var StdArgon2Params *Argon2Params = &amp;Argon2Params{
+        Memory:      64 * 1024,
+        Iterations:  3,
+        Parallelism: 4,
+        SaltLength:  16,
+        KeyLength:   32,
+}
+
+// u-sushi hash
+// $argon2id$v=19$m=65536,t=3,p=4$vb4AULkt8aSGh/Rfq5BwOQ$jzmrQ/jv6I6e2MZhfejoIvUzaarV4874fgZ6cJS6eF4
+func HashPassword(password string, p *Argon2Params) (string, error) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("hash password: %v", err)
+        }</span>
+        <span class="cov8" title="1">salt := make([]byte, p.SaltLength)
+        _, err := rand.Read(salt)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", wrapErr(err)
+        }</span>
+        <span class="cov8" title="1">hash := argon2.IDKey([]byte(password), salt, p.Iterations, p.Memory, p.Parallelism, p.KeyLength)
+
+        b64Salt := base64.RawStdEncoding.EncodeToString(salt)
+        b64Hash := base64.RawStdEncoding.EncodeToString(hash)
+
+        encodedHash := fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s", argon2.Version, p.Memory, p.Iterations, p.Parallelism, b64Salt, b64Hash)
+        return encodedHash, nil</span>
+}
+
+func VerifyPassword(password string, encodedHash string) (bool, error) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("verify password: %v", err)
+        }</span>
+        <span class="cov8" title="1">p, salt, hash, err := DecodeHash(encodedHash)
+        if err != nil </span><span class="cov0" title="0">{
+                return false, wrapErr(err)
+        }</span>
+
+        <span class="cov8" title="1">otherHash := argon2.IDKey([]byte(password), salt, p.Iterations, p.Memory, p.Parallelism, p.KeyLength)
+
+        // subtle.ConstantTimeCompare() function to help prevent timing attacks.
+        return subtle.ConstantTimeCompare(hash, otherHash) == 1, nil</span>
+}
+
+func DecodeHash(encodedHash string) (p *Argon2Params, salt []byte, hash []byte, err error) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("decode hash: %v", err)
+        }</span>
+        <span class="cov8" title="1">vals := strings.Split(encodedHash, "$")
+        if len(vals) != 6 </span><span class="cov0" title="0">{
+                return nil, nil, nil, wrapErr(ErrInvalidHash)
+        }</span>
+
+        <span class="cov8" title="1">var version int
+        _, err = fmt.Sscanf(vals[2], "v=%d", &amp;version)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, nil, nil, err
+        }</span>
+        <span class="cov8" title="1">if version != argon2.Version </span><span class="cov0" title="0">{
+                return nil, nil, nil, wrapErr(ErrInvalidHash)
+        }</span>
+
+        <span class="cov8" title="1">p = &amp;Argon2Params{}
+        _, err = fmt.Sscanf(vals[3], "m=%d,t=%d,p=%d", &amp;p.Memory, &amp;p.Iterations, &amp;p.Parallelism)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, nil, nil, err
+        }</span>
+
+        <span class="cov8" title="1">salt, err = base64.RawStdEncoding.Strict().DecodeString(vals[4])
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, nil, nil, err
+        }</span>
+        <span class="cov8" title="1">p.SaltLength = uint32(len(salt))
+
+        hash, err = base64.RawStdEncoding.Strict().DecodeString(vals[5])
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, nil, nil, err
+        }</span>
+        <span class="cov8" title="1">p.KeyLength = uint32(len(hash))
+
+        return p, salt, hash, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package u_sushi
+
+import (
+        "fmt"
+        "os"
+
+        "github.com/jmoiron/sqlx"
+        _ "github.com/lib/pq"
+)
+
+var db *sqlx.DB
+
+func GetDB() *sqlx.DB <span class="cov8" title="1">{
+        return db
+}</span>
+
+func SetDB(conn *sqlx.DB) <span class="cov8" title="1">{
+        db = conn
+}</span>
+
+func ConnectToDB() error <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("connecting to db: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">dbUrl := os.Getenv("DB_CONNECTION_URL")
+        db, err := sqlx.Connect("postgres", dbUrl)
+        if err != nil </span><span class="cov0" title="0">{
+                return wrapErr(err)
+        }</span>
+
+        <span class="cov8" title="1">SetDB(db)
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package auth
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        "strings"
+        "time"
+        u_sushi "u-sushi"
+        "u-sushi/auth"
+        "u-sushi/models"
+
+        "github.com/gorilla/mux"
+        "golang.org/x/text/cases"
+        "golang.org/x/text/language"
+        "gopkg.in/guregu/null.v4"
+)
+
+type TokenResponse struct {
+        Token string `json:"token"`
+}
+
+type LoginRequest struct {
+        Password string
+}
+
+func AdminLogin(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        loginUser(w, r, models.UserAdmin)
+}</span>
+
+func EmployeeLogin(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        loginUser(w, r, models.UserEmployee)
+}</span>
+
+func loginUser(w http.ResponseWriter, r *http.Request, userType models.UserType) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("login: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req LoginRequest
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var encodedHash string
+        err = u_sushi.GetDB().QueryRow("select password from sushi_user where user_type = $1", userType).Scan(&amp;encodedHash)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">if verified, err := auth.VerifyPassword(req.Password, encodedHash); err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span> else<span class="cov8" title="1"> if !verified </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusUnauthorized, wrapErr(auth.ErrWrongPassword))
+                return
+        }</span>
+        <span class="cov8" title="1">token, err := auth.CreateJWT(userType, null.Int{})
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">tokenJson, err := json.Marshal(TokenResponse{
+                Token: token,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(tokenJson))</span>
+}
+
+type ClientLoginRequest struct {
+        Password    string
+        TableNumber int
+        Menu        models.Menu
+        Seatings    int
+}
+
+func ClientLogin(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("login: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req ClientLoginRequest
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var encodedHash string
+        err = u_sushi.GetDB().QueryRow("select password from sushi_user where user_type = $1", models.UserClient).Scan(&amp;encodedHash)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">if verified, err := auth.VerifyPassword(req.Password, encodedHash); err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span> else<span class="cov8" title="1"> if !verified </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusUnauthorized, wrapErr(auth.ErrWrongPassword))
+                return
+        }</span>
+        <span class="cov8" title="1">var sessionID int
+        err = u_sushi.GetDB().QueryRow(
+                "insert into session (start_at, table_number, menu, seating) values ($1, $2, $3, $4) returning id",
+                time.Now(),
+                req.TableNumber,
+                req.Menu,
+                req.Seatings,
+        ).Scan(&amp;sessionID)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">token, err := auth.CreateJWT(models.UserClient, null.IntFrom(int64(sessionID)))
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">tokenJson, err := json.Marshal(TokenResponse{
+                Token: token,
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(tokenJson))</span>
+}
+
+type ChangePasswordRequest struct {
+        OldPassword string
+        NewPassword string
+}
+
+func ChangePassword(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("change password: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req ChangePasswordRequest
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var encodedHash string
+        vars := mux.Vars(r)
+        userType := cases.Title(language.English).String(strings.ToLower(vars["userType"]))
+        err = u_sushi.GetDB().QueryRow("select password from sushi_user where user_type = $1", userType).Scan(&amp;encodedHash)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">verified, err := auth.VerifyPassword(req.OldPassword, encodedHash)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span> else<span class="cov8" title="1"> if !verified </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusUnauthorized, wrapErr(auth.ErrWrongPassword))
+                return
+        }</span>
+        <span class="cov8" title="1">newHash, err := auth.HashPassword(req.NewPassword, auth.StdArgon2Params)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">_, err = u_sushi.GetDB().Exec("update sushi_user set password = $1 where user_type = $2", newHash, userType)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package command
+
+import (
+        u_sushi "u-sushi"
+
+        "github.com/jmoiron/sqlx"
+        "gopkg.in/guregu/null.v4"
+)
+
+func checkValidCommand(tx *sqlx.Tx, command []OrderRequest, sessionID int) (bool, error) <span class="cov8" title="1">{
+        var seating int
+        err := tx.QueryRow("select seating from session where id = $1", sessionID).Scan(&amp;seating)
+        if err != nil </span><span class="cov0" title="0">{
+                return false, err
+        }</span>
+
+        <span class="cov8" title="1">var prevCommand []OrderRequest
+        err = tx.Select(&amp;prevCommand, "select plate_id, quantity from command where session_id = $1", sessionID)
+        if err != nil </span><span class="cov0" title="0">{
+                return false, err
+        }</span>
+
+        <span class="cov8" title="1">count := make(map[int]int)
+        for _, c := range command </span><span class="cov8" title="1">{
+                count[c.PlateID] += c.Quantity
+        }</span>
+        <span class="cov8" title="1">for _, c := range prevCommand </span><span class="cov0" title="0">{
+                count[c.PlateID] += c.Quantity
+        }</span>
+
+        <span class="cov8" title="1">var plates []struct {
+                ID    int
+                Limit null.Int
+        }
+        err = u_sushi.GetDB().Select(
+                &amp;plates,
+                `select distinct p.id, p.order_limit as limit 
+                        from plate p 
+                        join command c on c.plate_id = p.id 
+                where session_id = $1`,
+                sessionID,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return false, err
+        }</span>
+
+        <span class="cov8" title="1">for _, p := range plates </span><span class="cov0" title="0">{
+                if p.Limit.Valid &amp;&amp; int(p.Limit.Int64)*seating &lt; count[p.ID] </span><span class="cov0" title="0">{
+                        return false, nil
+                }</span>
+        }
+
+        <span class="cov8" title="1">return true, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package command
+
+import (
+        "encoding/json"
+        "errors"
+        "fmt"
+        "net/http"
+        "time"
+        u_sushi "u-sushi"
+        "u-sushi/auth"
+        "u-sushi/models"
+)
+
+var (
+        ErrLimitReached = errors.New("limit for this plate has been reached")
+)
+
+type OrderRequest struct {
+        PlateID  int `db:"plate_id"`
+        Quantity int
+}
+
+type CreateCommandResponse struct {
+        At time.Time `json:"at"`
+}
+
+func CreateCommand(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("create command: %v", err)
+        }</span>
+        <span class="cov8" title="1">claims, err := auth.ExtractClaims(r)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var req []OrderRequest
+        err = json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">tx, err := u_sushi.GetDB().Beginx()
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">if ok, err := checkValidCommand(tx, req, int(claims.SessionID.Int64)); err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span> else<span class="cov8" title="1"> if !ok </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(ErrLimitReached))
+                return
+        }</span>
+        <span class="cov8" title="1">at := time.Now()
+        var commands []models.Command
+        for _, command := range req </span><span class="cov8" title="1">{
+                commands = append(commands, models.Command{
+                        SessionID: int(claims.SessionID.Int64),
+                        PlateID:   command.PlateID,
+                        At:        at,
+                        Quantity:  command.Quantity,
+                        Status:    models.CommandOrdered,
+                })
+        }</span>
+        <span class="cov8" title="1">_, err = tx.NamedExec(
+                `insert into command
+                                (session_id, plate_id, at, quantity, status) values
+                                (:session_id, :plate_id, :at, :quantity, :status)`,
+                commands)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">err = tx.Commit()
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">atJson, err := json.Marshal(CreateCommandResponse{At: at})
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)
+        fmt.Fprint(w, string(atJson))</span>
+}
+
+func ReadClientCommandHistory(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read client command history: %v", err)
+        }</span>
+        <span class="cov0" title="0">claims, err := auth.ExtractClaims(r)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov0" title="0">command := []models.Command{}
+        err = u_sushi.GetDB().Select(&amp;command, "select * from command where session_id = $1", claims.SessionID.Int64)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov0" title="0">commandJson, err := json.Marshal(command)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov0" title="0">fmt.Fprint(w, string(commandJson))</span>
+}
+
+func ReadCommandHistory(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read command history: %v", err)
+        }</span>
+        <span class="cov8" title="1">command := []models.Command{}
+        err := u_sushi.GetDB().Select(&amp;command, "select * from command where status != 'Delivered'")
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">commandJson, err := json.Marshal(command)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(commandJson))</span>
+}
+
+type UpdateOrderStatusRequest struct {
+        SessionID int `db:"session_id"`
+        PlateID   int `db:"plate_id"`
+        At        time.Time
+        Status    models.CommandStatus
+}
+
+func UpdateOrderStatus(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("update order status: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req UpdateOrderStatusRequest
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+
+        <span class="cov8" title="1">_, err = u_sushi.GetDB().NamedExec(
+                "update command set status = :status where session_id = :session_id and plate_id = :plate_id and at = :at",
+                req,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package image
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+
+        "github.com/gorilla/mux"
+)
+
+func CreateImage(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("create image: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req models.Image
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var id int
+        err = u_sushi.NamedGet(&amp;id, "insert into image (image) values (:image) returning id", &amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">idJson, err := json.Marshal(models.ReturningID{ID: id})
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)
+        fmt.Fprint(w, string(idJson))</span>
+}
+
+func ReadImage(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read image: %v", err)
+        }</span>
+        <span class="cov8" title="1">images := []models.Image{}
+        err := u_sushi.GetDB().Select(&amp;images, "select * from image")
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">imagesJson, err := json.Marshal(images)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(imagesJson))</span>
+}
+
+func UpdateImage(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("update image: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req models.Image
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err = u_sushi.GetDB().Exec("update image set image = $1 where id = $2", req.Image, vars["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+
+func DeleteImage(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("delete image: %v", err)
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err := u_sushi.GetDB().Exec("delete from image where id = $1", vars["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package plate
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+)
+
+func ReadAllergen(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read allergen: %v", err)
+        }</span>
+        <span class="cov8" title="1">allergens := []models.Allergen{}
+        err := u_sushi.GetDB().Select(&amp;allergens, "select * from allergen")
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">allergensJson, err := json.Marshal(allergens)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(allergensJson))</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package plate
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+
+        "github.com/gorilla/mux"
+)
+
+func CreateCategory(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("create category: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req models.Category
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var id int
+        err = u_sushi.NamedGet(&amp;id, "insert into category (name) values (:name) returning id", &amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">idJson, err := json.Marshal(models.ReturningID{ID: id})
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)
+        fmt.Fprint(w, string(idJson))</span>
+}
+
+func ReadCategory(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read category: %v", err)
+        }</span>
+        <span class="cov8" title="1">categories := []models.Category{}
+        err := u_sushi.GetDB().Select(&amp;categories, "select * from category")
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">categoriesJson, err := json.Marshal(categories)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(categoriesJson))</span>
+}
+
+func UpdateCategory(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("update category: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req models.Category
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err = u_sushi.GetDB().Exec("update category set name = $1 where id = $2", req.Name, vars["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+
+func DeleteCategory(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("delete category: %v", err)
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err := u_sushi.GetDB().Exec("delete from category where id = $1", vars["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package plate
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+)
+
+func ReadIngredient(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read ingredient: %v", err)
+        }</span>
+        <span class="cov8" title="1">ingredients := []models.Ingredient{}
+        err := u_sushi.GetDB().Select(&amp;ingredients, "select * from ingredient")
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">ingredientsJson, err := json.Marshal(ingredients)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(ingredientsJson))</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package plate
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        "strconv"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+
+        "github.com/gorilla/mux"
+)
+
+func CreatePlate(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("create plate: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req models.Plate
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">var id int
+        err = u_sushi.NamedGet(
+                &amp;id,
+                `insert into plate 
+                (name, price, category_id, menu, description, image_id, order_limit, pieces) 
+                values (:name, :price, :category_id, :menu, :description, :image_id, :order_limit, :pieces)
+                returning id`,
+                &amp;req,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">idJson, err := json.Marshal(models.ReturningID{ID: id})
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)
+        fmt.Fprint(w, string(idJson))</span>
+}
+
+func ReadPlate(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read plate: %v", err)
+        }</span>
+        <span class="cov8" title="1">plates := []models.Plate{}
+        err := u_sushi.GetDB().Select(&amp;plates, "select * from plate")
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">platesJson, err := json.Marshal(plates)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(platesJson))</span>
+}
+
+func UpdatePlate(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("update plate: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req models.Plate
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        id, err := strconv.Atoi(vars["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">req.ID = id
+        _, err = u_sushi.GetDB().NamedExec(`
+                update plate set
+                        name = :name,
+                        price = :price,
+                        category_id = :category_id,
+                        menu = :menu,
+                        description = :description,
+                        image_id = :image_id,
+                        order_limit = :order_limit,
+                        pieces = :pieces
+                where id = :id`,
+                &amp;req,
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+
+func DeletePlate(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("delete plate: %v", err)
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err := u_sushi.GetDB().Exec("delete from plate where id = $1", vars["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package plate
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+        u_sushi "u-sushi"
+        "u-sushi/models"
+
+        "github.com/gorilla/mux"
+)
+
+type CreatePlateIngredientRequest struct {
+        IngredientID int
+}
+
+func CreatePlateIngredient(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov8" title="1">{
+                return fmt.Errorf("create plate_ingredient: %v", err)
+        }</span>
+        <span class="cov8" title="1">var req CreatePlateIngredientRequest
+        err := json.NewDecoder(r.Body).Decode(&amp;req)
+        if err != nil </span><span class="cov8" title="1">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err = u_sushi.GetDB().Exec("insert into plate_ingredient (plate_id, ingredient_id) values ($1, $2)", vars["plateID"], req.IngredientID)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">w.WriteHeader(http.StatusCreated)</span>
+}
+
+func ReadPlateIngredient(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("read plate_ingredient: %v", err)
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        ingredients := []models.Ingredient{}
+        err := u_sushi.GetDB().Select(&amp;ingredients, `
+                select i.* from plate_ingredient pi 
+                        join ingredient i on pi.ingredient_id = i.id
+                where pi.plate_id = $1`,
+                vars["plateID"],
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">ingredientsJson, err := json.Marshal(ingredients)
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusInternalServerError, wrapErr(err))
+                return
+        }</span>
+        <span class="cov8" title="1">fmt.Fprint(w, string(ingredientsJson))</span>
+}
+
+func DeletePlateIngredient(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        wrapErr := func(err error) error </span><span class="cov0" title="0">{
+                return fmt.Errorf("delete plate_ingredient: %v", err)
+        }</span>
+        <span class="cov8" title="1">vars := mux.Vars(r)
+        _, err := u_sushi.GetDB().Exec("delete from plate_ingredient where plate_id = $1 and ingredient_id = $2", vars["plateID"], vars["ingredientID"])
+        if err != nil </span><span class="cov0" title="0">{
+                u_sushi.HttpError(w, http.StatusBadRequest, wrapErr(err))
+                return
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package routes
+
+import (
+        u_sushi "u-sushi"
+        "u-sushi/auth"
+        hauth "u-sushi/handlers/auth"
+        "u-sushi/handlers/image"
+        "u-sushi/handlers/plate"
+
+        "github.com/gorilla/mux"
+)
+
+func HandleAll(r *mux.Router) <span class="cov8" title="1">{
+        rr := r.PathPrefix("/admin").Subrouter()
+        rr.Use(auth.AdminAuthMiddleware)
+        rr.Use(u_sushi.ContentTypeApplicationJsonMiddleware)
+        HandleAuth(rr)
+        HandlePlate(rr)
+}</span>
+
+func HandleAuth(r *mux.Router) <span class="cov8" title="1">{
+        auth.LoadKey()
+        rr := r.PathPrefix("/auth").Subrouter()
+        rr.HandleFunc("/login", hauth.AdminLogin).Methods("POST")
+        rr.HandleFunc("/password/{userType}", hauth.ChangePassword).Methods("POST")
+}</span>
+
+func HandlePlate(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/plate", plate.CreatePlate).Methods("POST")
+        r.HandleFunc("/plate", plate.ReadPlate).Methods("GET")
+        r.HandleFunc("/plate/{id}", plate.UpdatePlate).Methods("PUT")
+        r.HandleFunc("/plate/{id}", plate.DeletePlate).Methods("DELETE")
+
+        HandleImage(r)
+        HandleCategory(r)
+        HandleAllergen(r)
+        HandleIngredient(r)
+        HandlePlateIngredient(r)
+}</span>
+
+func HandleImage(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/image", image.CreateImage).Methods("POST")
+        r.HandleFunc("/image", image.ReadImage).Methods("GET")
+        r.HandleFunc("/image/{id}", image.UpdateImage).Methods("PUT")
+        r.HandleFunc("/image/{id}", image.DeleteImage).Methods("DELETE")
+}</span>
+
+func HandleCategory(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/category", plate.CreateCategory).Methods("POST")
+        r.HandleFunc("/category", plate.ReadCategory).Methods("GET")
+        r.HandleFunc("/category/{id}", plate.UpdateCategory).Methods("PUT")
+        r.HandleFunc("/category/{id}", plate.DeleteCategory).Methods("DELETE")
+}</span>
+
+func HandleAllergen(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/allergen", plate.ReadAllergen).Methods("GET")
+}</span>
+
+func HandleIngredient(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/ingredient", plate.ReadIngredient).Methods("GET")
+}</span>
+
+func HandlePlateIngredient(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/plate/{plateID}/ingredient", plate.CreatePlateIngredient).Methods("POST")
+        r.HandleFunc("/plate/{plateID}/ingredient", plate.ReadPlateIngredient).Methods("GET")
+        r.HandleFunc("/plate/{plateID}/ingredient/{ingredientID}", plate.DeletePlateIngredient).Methods("DELETE")
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package routes
+
+import (
+        u_sushi "u-sushi"
+        "u-sushi/auth"
+        hauth "u-sushi/handlers/auth"
+        "u-sushi/handlers/command"
+        "u-sushi/handlers/image"
+        "u-sushi/handlers/plate"
+
+        "github.com/gorilla/mux"
+)
+
+func HandleAll(r *mux.Router) <span class="cov8" title="1">{
+        rr := r.PathPrefix("/client").Subrouter()
+        rr.Use(auth.ClientAuthMiddleware)
+        rr.Use(u_sushi.ContentTypeApplicationJsonMiddleware)
+        HandleAuth(rr)
+        HandleCommand(rr)
+        HandlePlate(rr)
+}</span>
+
+func HandleAuth(r *mux.Router) <span class="cov8" title="1">{
+        auth.LoadKey()
+        rr := r.PathPrefix("/auth").Subrouter()
+        rr.HandleFunc("/login", hauth.ClientLogin).Methods("POST")
+}</span>
+
+func HandleCommand(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/command", command.CreateCommand).Methods("POST")
+        r.HandleFunc("/history", command.ReadClientCommandHistory).Methods("GET")
+}</span>
+
+func HandlePlate(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/plate", plate.ReadPlate).Methods("GET")
+
+        HandleImage(r)
+        HandleCategory(r)
+        HandleAllergen(r)
+        HandleIngredient(r)
+        HandlePlateIngredient(r)
+}</span>
+
+func HandleImage(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/image", image.ReadImage).Methods("GET")
+}</span>
+
+func HandleCategory(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/category", plate.ReadCategory).Methods("GET")
+}</span>
+
+func HandleAllergen(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/allergen", plate.ReadAllergen).Methods("GET")
+}</span>
+
+func HandleIngredient(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/ingredient", plate.ReadIngredient).Methods("GET")
+}</span>
+
+func HandlePlateIngredient(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/plate/{plateID}/ingredient", plate.ReadPlateIngredient).Methods("GET")
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package routes
+
+import (
+        u_sushi "u-sushi"
+        "u-sushi/auth"
+        hauth "u-sushi/handlers/auth"
+        "u-sushi/handlers/command"
+
+        "github.com/gorilla/mux"
+)
+
+func HandleAll(r *mux.Router) <span class="cov8" title="1">{
+        rr := r.PathPrefix("/employee").Subrouter()
+        rr.Use(auth.EmployeeAuthMiddleware)
+        rr.Use(u_sushi.ContentTypeApplicationJsonMiddleware)
+        HandleAuth(rr)
+        HandleOrderStatus(rr)
+        HandleCommand(rr)
+}</span>
+
+func HandleAuth(r *mux.Router) <span class="cov8" title="1">{
+        auth.LoadKey()
+        rr := r.PathPrefix("/auth").Subrouter()
+        rr.HandleFunc("/login", hauth.EmployeeLogin).Methods("POST")
+}</span>
+
+func HandleOrderStatus(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/order-status", command.UpdateOrderStatus).Methods("PUT")
+}</span>
+
+func HandleCommand(r *mux.Router) <span class="cov8" title="1">{
+        r.HandleFunc("/command", command.ReadCommandHistory).Methods("GET")
+}</span>
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package server
+
+import (
+        "log"
+        "net/http"
+        "sync"
+
+        u_sushi "u-sushi"
+
+        admin_routes "u-sushi/server/routes/admin"
+        client_routes "u-sushi/server/routes/client"
+        employee_routes "u-sushi/server/routes/employee"
+
+        "github.com/gorilla/mux"
+)
+
+func StartServer() <span class="cov8" title="1">{
+        err := u_sushi.ConnectToDB()
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalln(err)
+        }</span>
+
+        <span class="cov8" title="1">var waitGroup sync.WaitGroup
+        waitGroup.Add(2)
+
+        go func() </span><span class="cov8" title="1">{
+                defer waitGroup.Done()
+
+                r := mux.NewRouter()
+                admin_routes.HandleAll(r)
+                err = http.ListenAndServe(":8081", r)
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatalln(err)
+                }</span>
+        }()
+
+        <span class="cov8" title="1">go func() </span><span class="cov8" title="1">{
+                defer waitGroup.Done()
+
+                r := mux.NewRouter()
+                client_routes.HandleAll(r)
+                employee_routes.HandleAll(r)
+                err = http.ListenAndServe(":8082", r)
+                if err != nil </span><span class="cov0" title="0">{
+                        log.Fatalln(err)
+                }</span>
+        }()
+
+        <span class="cov8" title="1">waitGroup.Wait()</span>
+}
+</pre>
+		
+		<pre class="file" id="file17" style="display: none">package u_sushi
+
+import (
+        "encoding/json"
+        "fmt"
+        "log"
+        "net/http"
+)
+
+func HttpError(w http.ResponseWriter, statusCode int, httpErr error) <span class="cov8" title="1">{
+        jsonErr, err := json.Marshal(&amp;struct {
+                Error string `json:"error"`
+        }{
+                Error: httpErr.Error(),
+        })
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatalln(err)
+        }</span>
+        <span class="cov8" title="1">log.Println(httpErr)
+        w.WriteHeader(statusCode)
+        fmt.Fprintln(w, string(jsonErr))</span>
+}
+
+func NamedGet(dest interface{}, query string, arg interface{}) error <span class="cov8" title="1">{
+        query, args, err := GetDB().BindNamed(query, arg)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">return GetDB().QueryRowx(query, args...).Scan(dest)</span>
+}
+
+func ContentTypeApplicationJsonMiddleware(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+                next.ServeHTTP(w, r)
+        }</span>)
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
